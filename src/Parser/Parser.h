@@ -1,8 +1,8 @@
 #ifndef PARSER_
 #define PARSER_
 
-#include "Model.h"
-#include "Database.h"
+#include "../General/Model.h"
+#include "../Database/Database.h"
 #include <istream>
 #include <memory>
 #include <string_view>

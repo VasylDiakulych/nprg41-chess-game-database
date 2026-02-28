@@ -1,7 +1,7 @@
 #ifndef DATABASE_
 #define DATABASE_
 
-#include "Model.h"
+#include "../General/Model.h"
 #include <cstddef>
 #include <vector>
 namespace Pgn {

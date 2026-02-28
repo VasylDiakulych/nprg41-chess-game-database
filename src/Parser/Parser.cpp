@@ -1,8 +1,6 @@
 #include "Parser.h"
-#include "Database.h"
-#include "Exception.h"
-#include "Model.h"
-#include "Tokens.h"
+#include "../General/Exception.h"
+#include "../General/Tokens.h"
 #include <cctype>
 #include <memory>
 #include <fstream>
@@ -21,7 +19,7 @@ std::optional<int> Pgn::Parser::Parser::parse_int_(std::string_view value){
         int digit = c - '0';
 
         if (result > (INT_MAX - digit) / 10) {
-            throw std::nullopt;
+            return std::nullopt;
         }
 
         result = result * 10 + digit;
@@ -48,6 +46,7 @@ void Pgn::Parser::Parser::parse_tag_(std::string_view line){
     else if (key == Tokens::WHITE_ELO)  current_data_.white_elo = parse_int_(value);
     else if (key == Tokens::BLACK_ELO)  current_data_.black_elo = parse_int_(value);
     else if (key == Tokens::PLY_COUNT)  current_data_.ply_count = parse_int_(value);
+    else if (key == Tokens::ECO)        current_data_.eco = value;
     else if (key == Tokens::OPENING)    current_data_.opening = value;
     else if (key == Tokens::TIME_CONTROL) current_data_.time_control = value;
 

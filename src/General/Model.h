@@ -80,17 +80,39 @@ namespace Pgn :: Model{
             white_elo_(data.white_elo), // integer
             black_elo_(data.black_elo), // integer
             ECO_(std::move(data.eco)),
+            opening_(std::move(data.opening)),
             ply_count_(data.ply_count), // integer
             time_control_(std::move(data.time_control))
         {
             moves_.reserve(GameConstants::INITIAL_MOVE_RESERVE); // reserving space for moves string, to improve performance
         };
 
-        std::string get_event_name(){
-            return event_name_;
+        void add_moves_(const std::string& token);
+        
+        [[nodiscard]] 
+        GameData data() const {
+            return GameData{
+                event_name_,
+                site_,
+                date_,
+                round_,
+                white_player_name_,
+                black_player_name_,
+                result_,
+                white_elo_,
+                black_elo_,
+                ECO_,
+                opening_,
+                ply_count_,
+                time_control_
+            };
         }
 
-        void add_moves_(const std::string& token);
+        [[nodiscard]] 
+        const std::string& moves() const noexcept { 
+            return moves_; 
+        }
+
     };  
 
 }
