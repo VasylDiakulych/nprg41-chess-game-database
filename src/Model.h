@@ -2,10 +2,8 @@
 #ifndef MODEL_
 #define MODEL_
 
-#include <iostream>
 #include <optional>
 #include <string>
-#include <vector>
 
 namespace Pgn :: Model{
 
@@ -87,6 +85,10 @@ namespace Pgn :: Model{
         {
             moves_.reserve(GameConstants::INITIAL_MOVE_RESERVE); // reserving space for moves string, to improve performance
         };
+
+        std::string get_event_name(){
+            return event_name_;
+        }
 
         void add_moves_(const std::string& token);
     };  

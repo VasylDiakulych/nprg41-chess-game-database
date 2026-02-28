@@ -5,6 +5,7 @@
 #include "Database.h"
 #include <istream>
 #include <memory>
+#include <string_view>
 
 namespace Pgn {
     namespace Parser {
@@ -43,8 +44,8 @@ namespace Pgn {
                 current_data_.time_control = std::nullopt;
             }
 
-            void parse_int_();
-            void parse_tag_(); 
+            std::optional<int> parse_int_(std::string_view line);
+            void parse_tag_(std::string_view line); 
 
             void parse_movetext_(std::string_view line, Database::Database& db);
             void evaluate_token_(const std::string& token, Database::Database& db);
