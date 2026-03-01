@@ -19,3 +19,6 @@ compile_commands.json
 .cache
 
 app
+
+test.txt
+test_out.txt
