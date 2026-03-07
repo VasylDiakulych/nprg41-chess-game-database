@@ -1,75 +1,62 @@
 #ifndef DATABASE_
 #define DATABASE_
 
-#include "../General/Model.h"
-#include <cstddef>
+#include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
+#include <optional>
+#include "../General/Model.h"
 
-namespace Pgn {
-    namespace Database {
+namespace Pgn::Database {
+
+    enum class ColorTarget { Any, White, Black };
+
+    struct Query {
+        std::optional<std::string> player_name;
+        ColorTarget player_color = ColorTarget::Any;
+        std::optional<std::string> event;
+        std::optional<std::string> site;
+        std::optional<std::string> eco;
         
-        using database_t = std::vector<Pgn::Model::Game>;
+        std::optional<std::string> result;       
+        std::optional<std::string> opening;    
+        std::optional<std::string> time_control;
 
-        enum class ColorTarget { White, Black, Any };
+        std::optional<std::string> date_min;     
+        std::optional<std::string> date_max;    
+        
+        std::optional<int> ply_count_min;
+        std::optional<int> ply_count_max;
+        std::optional<int> elo_min;
+        std::optional<int> elo_max;
+        
+        size_t limit = 100;
+        size_t offset = 0;
+    };
 
-        struct Query{
-            size_t limit = 50;
-            size_t offset = 0;
-
-            std::optional<std::string> player_name; 
-            ColorTarget player_color = ColorTarget::Any;
-
-            std::optional<std::string> event;
-            std::optional<std::string> eco;
-            std::optional<std::string> site;
-
-            std::optional<std::string> result;
-            std::optional<std::string> opening;
-            std::optional<std::string> time_control;
-            std::optional<std::string> round;
-
-            std::optional<int> elo_min;
-            std::optional<int> elo_max;
-            
-            std::optional<int> ply_count_min;
-            std::optional<int> ply_count_max;
-
-            std::optional<std::string> date_min;
-            std::optional<std::string> date_max;
-        };
-
-        class Database{
+    class Database {
         private:
-
-            database_t games_;
+            std::vector<Pgn::Model::Game> games_;
 
             std::unordered_map<std::string, std::vector<size_t>> player_index_;
             std::unordered_map<std::string, std::vector<size_t>> event_index_;
-            std::unordered_map<std::string, std::vector<size_t>> eco_index_;
             std::unordered_map<std::string, std::vector<size_t>> site_index_;
+            std::unordered_map<std::string, std::vector<size_t>> eco_index_;
 
-            static std::string normalize_key_(std::string_view key);
+            [[nodiscard]] static std::string normalize_key_(std::string_view key);
+            static bool matched_(std::string_view str1, std::string_view str2);
+            
+            [[nodiscard]] std::optional<std::vector<const std::vector<size_t>*>> indexed_search_(const Query& query) const;
+            [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<const std::vector<size_t>*>& indices_val) const;
+            bool satisfies_predicates_(const Pgn::Model::Game& game, const Query& query, bool check_all, std::string_view norm_player) const;
 
         public:
             void add_game(Pgn::Model::Game&& game);
-            std::vector<Model::Game> search(const Query& query) const;
+            [[nodiscard]] std::vector<const Pgn::Model::Game*> search(const Query& query) const;
 
-            size_t size() const noexcept {
-                return games_.size();
-            }
+    };
 
-            const database_t& games() const noexcept {
-                return games_;
-            }
-
-            void clear() {
-                games_.clear();
-            }
-        };
-
-    }
 }
 
 #endif
