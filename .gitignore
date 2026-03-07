@@ -22,3 +22,5 @@ app
 
 test.txt
 test_out.txt
+
+.clangd
