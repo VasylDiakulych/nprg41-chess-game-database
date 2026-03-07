@@ -1,7 +1,6 @@
 #ifndef WRITER_
 #define WRITER_
 
-#include <fstream>
 #include <optional>
 #include <ostream>
 #include <string_view>

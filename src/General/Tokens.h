@@ -29,6 +29,9 @@ namespace Pgn::Tokens{
     constexpr char TAG_OPEN = '[';
     constexpr char TAG_CLOSE = ']';
 
+    constexpr char FLAG_PREFIX = '-';
+    constexpr char EQUALS = '=';
+
     inline bool is_termination(const std::string& token) {
         return (token == "1-0" || token == "0-1" || token == "1/2-1/2" || token == "*"); 
     }
