@@ -1,9 +1,11 @@
 #ifndef WRITER_
 #define WRITER_
 
+#include <fstream>
 #include <optional>
 #include <ostream>
 #include <string_view>
+#include <vector>
 #include "../General/Model.h"
 #include "iostream"
 
@@ -27,6 +29,9 @@ namespace Pgn::Writer {
         ~Writer() = default;
 
         void write_game(const Model::Game& game, std::ostream& stream = std::cout);
+        void write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream = std::cout);
+        void write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename);
+        void write_game_compact(const Model::Game& game, std::ostream& stream = std::cout) const;
     };
 }
 

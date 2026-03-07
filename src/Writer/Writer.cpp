@@ -1,6 +1,9 @@
 #include "Writer.h"
-#include "iostream"
+#include <iostream>
 #include "../General/Tokens.h"
+#include <fstream>
+#include <ostream>
+#include "../General/Exception.h"
 
 void Pgn::Writer::Writer::write_tag_help_(std::ostream& out, std::string_view key, std::string_view value, bool mandatory) const {
     out << '[' << key << " \"";
@@ -78,4 +81,35 @@ void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stre
     write_moves_(stream, game.moves());
 
     stream << std::endl;
+}
+
+void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream){
+    for (const auto& game : games) {
+        write_game(*game, stream);
+        stream << std::endl;
+    }
+}
+
+void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename){
+    std::ofstream stream;
+    stream.open(filename);
+    if (stream.good()) {
+        write_games(games, stream);
+    }
+    else {
+        throw Pgn::Exception{1, Pgn::FILE_EXCEPTION, filename};
+    }
+    stream.close();
+}
+
+void Pgn::Writer::Writer::write_game_compact(const Model::Game& game, std::ostream& stream) const {
+    const auto& data = game.data();
+    stream << data.white;
+    if (data.white_elo) stream << " (" << *data.white_elo << ")";
+    stream << " vs " << data.black;
+    if (data.black_elo) stream << " (" << *data.black_elo << ")";
+    stream << " | " << data.date << " | " << data.event 
+           << " | " << data.result;
+    if (data.eco) stream << " | ECO: " << *data.eco;
+    stream << '\n';
 }
