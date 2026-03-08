@@ -31,7 +31,7 @@ namespace Pgn::Database {
         std::optional<int> elo_min;
         std::optional<int> elo_max;
         
-        size_t limit = 100;
+        size_t limit = 20;
         size_t offset = 0;
     };
 

@@ -6,17 +6,17 @@
 #include "../General/Exception.h"
 
 void Pgn::Writer::Writer::write_tag_help_(std::ostream& out, std::string_view key, std::string_view value, bool mandatory) const {
-    out << '[' << key << " \"";
+    out << Tokens::TAG_OPEN << key << " " << Tokens::VALUE_DELIM;
     
     if (mandatory && value.empty()) {
         out << '?';
     } else {
         for (char c : value) {
-            if (c == '"' || c == '\\') out << '\\';
+            if (c == Tokens::VALUE_DELIM || c == '\\') out << '\\';
             out << c;
         }
     }
-    out << "\"]\n";
+    out << Tokens::VALUE_DELIM << Tokens::TAG_CLOSE << "\n";
 }
 
 void Pgn::Writer::Writer::write_moves_(std::ostream& stream, std::string_view moves) const {
@@ -55,7 +55,7 @@ void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key,
 
 void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key, std::optional<int> value) const{
     if(!value.has_value()) { return; }
-    stream << '[' << key << " \"" << value.value() << "\"]\n";
+    stream << Tokens::TAG_OPEN << key << " \"" << value.value() << Tokens::VALUE_DELIM << Tokens::TAG_CLOSE << "\n";
 }
 
 void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stream) {
@@ -105,11 +105,11 @@ void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*>
 void Pgn::Writer::Writer::write_game_compact(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
     stream << data.white;
-    if (data.white_elo) stream << " (" << *data.white_elo << ")";
+    if (data.white_elo.has_value()) stream << " (" << data.white_elo.value() << ")";
     stream << " vs " << data.black;
-    if (data.black_elo) stream << " (" << *data.black_elo << ")";
+    if (data.black_elo.has_value()) stream << " (" << data.black_elo.value() << ")";
     stream << " | " << data.date << " | " << data.event 
            << " | " << data.result;
-    if (data.eco) stream << " | ECO: " << *data.eco;
+    if (data.eco.has_value()) stream << " | ECO: " << data.eco.value();
     stream << '\n';
 }

@@ -3,8 +3,6 @@
 #include <iostream>
 #include "../General/Tokens.h"
 
-using namespace Pgn;
-
 std::string Pgn::Cli::Application::trim_(std::string_view s) const {
     auto start = s.begin();
     auto end = s.end();
@@ -97,19 +95,68 @@ void Pgn::Cli::Application::print_prompt_() const {
     std::cout << "pgn-db> ";
 }
 
+void Pgn::Cli::Application::init_help_map_() {
+    help_map_[Commands::LOAD] = Help::LOAD;
+    help_map_[Commands::SEARCH] = Help::SEARCH;
+    help_map_[Commands::EXPORT] = Help::EXPORT;
+    help_map_[Commands::STATS] = Help::STATS;
+    help_map_[Commands::CLEAR] = Help::CLEAR;
+    help_map_[Commands::HELP] = Help::HELP;
+    help_map_[Commands::EXIT_1] = Help::EXIT;
+    help_map_[Commands::EXIT_2] = Help::EXIT;
+}
+
+void Pgn::Cli::Application::init_cmd_map_() {
+    cmd_map_[Commands::LOAD] = [this](const auto& cmd) -> void { cmd_load_(cmd); };
+    cmd_map_[Commands::SEARCH] = [this](const auto& cmd) -> void { cmd_search_(cmd); };
+    cmd_map_[Commands::EXPORT] = [this](const auto& cmd) -> void { cmd_export_(cmd); };
+    cmd_map_[Commands::STATS] = [this](const auto&) -> void { cmd_stats_(); };
+    cmd_map_[Commands::CLEAR] = [this](const auto&) -> void { cmd_clear_(); };
+    cmd_map_[Commands::HELP] = [this](const auto& cmd) -> void { cmd_help_(cmd); };
+    cmd_map_[Commands::EXIT_1] = [this](const auto&) -> void { cmd_quit_(); };
+    cmd_map_[Commands::EXIT_2] = [this](const auto&) -> void { cmd_quit_(); };
+}
+
 void Pgn::Cli::Application::cmd_quit_() {
     running_ = false;
     std::cout << "Goodbye!\n";
 }
 
+void Pgn::Cli::Application::cmd_clear_() {
+
+}
+
+void Pgn::Cli::Application::cmd_stats_() {
+
+}
+
 void Pgn::Cli::Application::cmd_help_(const ParsedCommand& cmd) {
     if (cmd.args.empty()) {
-        std::cout << "Available commands:\n"
-                  << "  help [command]       - Show help\n"
-                  << "  quit                 - Exit program\n";
+        std::cout << "Possible Commands:\n";
+        for (const auto& [name, help] : help_map_) {
+            std::cout << name << "\n" << help << "\n\n";
+        }
     } else {
-        std::cout << "Help for: " << cmd.args[0] << "\n";
+        auto it = help_map_.find(cmd.args[0]);
+        if (it != help_map_.end()) {
+            std::cout << it->second << "\n";
+        } else {
+            std::cout << "Unknown command: " << cmd.args[0] << "\n"
+                      << "Type 'help' for available commands.\n";
+        }
     }
+}
+
+void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
+
+};
+
+void Pgn::Cli::Application::cmd_search_(const ParsedCommand& cmd) {
+
+}
+
+void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
+
 }
 
 void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {
@@ -117,13 +164,12 @@ void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {
         return;
     }
     
-    if (cmd.name == "quit" || cmd.name == "exit") {
-        cmd_quit_();
-    } else if (cmd.name == "help") {
-        cmd_help_(cmd);
+    auto it = cmd_map_.find(cmd.args[0]);
+    if (it != cmd_map_.end()) {
+        it->second(cmd);
     } else {
-        std::cout << "Unknown command: " << cmd.name << "\n";
-        std::cout << "Type 'help' for available commands.\n";
+        std::cout << "Unknown command: " << cmd.args[0] << "\n"
+                    << "Type 'help' for available commands.\n";
     }
 }
 
