@@ -164,11 +164,11 @@ void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {
         return;
     }
     
-    auto it = cmd_map_.find(cmd.args[0]);
+    auto it = cmd_map_.find(cmd.name);
     if (it != cmd_map_.end()) {
         it->second(cmd);
     } else {
-        std::cout << "Unknown command: " << cmd.args[0] << "\n"
+        std::cout << "Unknown command: " << cmd.name << "\n"
                     << "Type 'help' for available commands.\n";
     }
 }
