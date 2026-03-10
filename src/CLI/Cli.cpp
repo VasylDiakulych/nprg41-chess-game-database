@@ -2,6 +2,7 @@
 #include <cctype>
 #include <iostream>
 #include "../General/Tokens.h"
+#include "../General/Exception.h"
 
 std::string Pgn::Cli::Application::trim_(std::string_view s) const {
     auto start = s.begin();
@@ -70,7 +71,7 @@ Pgn::Cli::ParsedCommand Pgn::Cli::Application::parse_command_line_(const std::ve
             } 
             else {
                 std::string flag_name = arg.substr(2);
-                if (i + 1 < args.size() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
+                if (i + 1 < args.size() && !args[i + 1].empty() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
                     cmd.flags[std::move(flag_name)] = args[++i];
                 } else {
                     cmd.flags[std::move(flag_name)] = "";
@@ -78,7 +79,7 @@ Pgn::Cli::ParsedCommand Pgn::Cli::Application::parse_command_line_(const std::ve
             }
         } else if (arg.size() > 1 && arg[0] == Tokens::FLAG_PREFIX) {
             std::string flag_name = arg.substr(1);
-            if (i + 1 < args.size() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
+            if (i + 1 < args.size() && !args[i + 1].empty() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
                 cmd.flags[std::move(flag_name)] = args[++i];
             } else {
                 cmd.flags[std::move(flag_name)] = "";
@@ -123,18 +124,20 @@ void Pgn::Cli::Application::cmd_quit_() {
 }
 
 void Pgn::Cli::Application::cmd_clear_() {
-
+    db.clear();
+    last_search_result.clear();
+    std::cout << "Database successfully cleared\n";
 }
 
 void Pgn::Cli::Application::cmd_stats_() {
-
+    db.print_stats();
 }
 
 void Pgn::Cli::Application::cmd_help_(const ParsedCommand& cmd) {
     if (cmd.args.empty()) {
         std::cout << "Possible Commands:\n";
         for (const auto& [name, help] : help_map_) {
-            std::cout << name << "\n" << help << "\n\n";
+            std::cout << "Command: " << name << "\n" << help << "\n\n";
         }
     } else {
         auto it = help_map_.find(cmd.args[0]);
@@ -148,15 +151,63 @@ void Pgn::Cli::Application::cmd_help_(const ParsedCommand& cmd) {
 }
 
 void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
+    if(cmd.args.empty()){
+        std::cout << "File name is missing!\n";
+        return;
+    }
 
+    auto filename = cmd.args[0];
+    auto prev_size = db.size();
+    last_search_result.clear();
+    parser.parse_file(filename, db);
+    auto new_size = db.size();
+
+    std::cout << "Successfully parsed " << new_size - prev_size << " games!\n";
 };
 
 void Pgn::Cli::Application::cmd_search_(const ParsedCommand& cmd) {
-
+    std::cout <<"Search is not implemented yet. Sorry.\n";
 }
 
 void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
+    if(cmd.args.empty()){
+        std::cout<< "Usage: export <filename> [results|all]\n"
+            "Export games to PGN file.\n"
+            "  results - Export last search results (default)\n"
+            "  all     - Export entire database\n"
+            "Example: export my_games.pgn results\n";
+        return;
+    }
 
+    auto filename = cmd.args[0];
+
+    if(cmd.args.size() == 2){
+        auto option = cmd.args[1];
+        if(option == "results"){
+            if(last_search_result.empty()) {
+                std::cout << "Cannot export games, you did not search for anything or search result is empty!\n";
+                return;
+            }
+            writer.write_games(last_search_result, filename);
+            std::cout << "Successfully exported last search result into the file " << filename << "!\n";
+        }
+        else if(option == "all"){ 
+            writer.write_games(db, filename);
+            std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+        }
+        else {
+            std::cout <<  "Unknown option <" << option << ">, please use [results|all].\n";
+        }
+        return;
+    }
+
+    if(cmd.args.size() > 2){
+        std::cout <<  "Wrong number of arguments, please use [results|all].\n";
+        return;
+    }
+
+    writer.write_games(db, filename);
+    std::cout<< "Successfully exported all games into the file " << filename << "!\n";
 }
 
 void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {

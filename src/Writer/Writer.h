@@ -6,6 +6,7 @@
 #include <string_view>
 #include <vector>
 #include "../General/Model.h"
+#include "../Database/Database.h"
 #include "iostream"
 
 namespace Pgn::Writer {
@@ -30,6 +31,8 @@ namespace Pgn::Writer {
         void write_game(const Model::Game& game, std::ostream& stream = std::cout);
         void write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream = std::cout);
         void write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename);
+        void write_games(const Database::Database& db, std::ostream& stream = std::cout);
+        void write_games(const Database::Database& db, const std::string& filename);
         void write_game_compact(const Model::Game& game, std::ostream& stream = std::cout) const;
     };
 }

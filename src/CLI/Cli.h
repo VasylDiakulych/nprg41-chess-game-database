@@ -1,11 +1,15 @@
 #ifndef CLI_
 #define CLI_
 
+#include "../Parser/Parser.h"
+#include "../Writer/Writer.h"
+#include "../Database/Database.h"
 #include <functional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 namespace Pgn {
     namespace Commands{
@@ -97,6 +101,12 @@ namespace Pgn {
 
         class Application{
         private:
+
+            Parser::Parser parser;
+            Writer::Writer writer;
+            Database::Database db;
+            std::vector<const Pgn::Model::Game*> last_search_result;
+
             std::unordered_map<std::string_view, const char*> help_map_;
             std::unordered_map<std::string_view,  std::function<void(const ParsedCommand&)>> cmd_map_;
             bool running_ = false;

@@ -102,6 +102,26 @@ void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*>
     stream.close();
 }
 
+void Pgn::Writer::Writer::write_games(const Database::Database& db, std::ostream& stream) {
+    auto games = db.get_games();
+    for (const auto& game : games) {
+        write_game(game, stream);
+        stream << std::endl;
+    }
+}
+
+void Pgn::Writer::Writer::write_games(const Database::Database& db, const std::string& filename){
+    std::ofstream stream;
+    stream.open(filename);
+    if (stream.good()) {
+        write_games(db, stream);
+    }
+    else {
+        throw Pgn::Exception{1, Pgn::FILE_EXCEPTION, filename};
+    }
+    stream.close();
+}
+
 void Pgn::Writer::Writer::write_game_compact(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
     stream << data.white;

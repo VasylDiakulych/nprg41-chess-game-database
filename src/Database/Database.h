@@ -1,6 +1,8 @@
 #ifndef DATABASE_
 #define DATABASE_
 
+#include <cstddef>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -52,9 +54,16 @@ namespace Pgn::Database {
             bool satisfies_predicates_(const Pgn::Model::Game& game, const Query& query, bool check_all, std::string_view norm_player) const;
 
         public:
+            
+            void clear();
+            size_t size() { return games_.size(); };
+            bool empty() { return games_.empty(); };
+
+            const std::vector<Pgn::Model::Game>& get_games() const { return games_;}
+
             void add_game(Pgn::Model::Game&& game);
             [[nodiscard]] std::vector<const Pgn::Model::Game*> search(const Query& query) const;
-
+            void print_stats(std::ostream& stream = std::cout) const;
     };
 
 }

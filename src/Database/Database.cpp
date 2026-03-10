@@ -1,6 +1,8 @@
 #include "Database.h"
 #include "../General/Model.h"
 #include <cstddef>
+#include <fstream>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -213,4 +215,20 @@ std::vector<const Pgn::Model::Game*> Pgn::Database::Database::search(const Pgn::
     }
 
     return results;
+}
+
+void Pgn::Database::Database::clear() {
+    std::vector<Pgn::Model::Game>().swap(games_);
+    std::unordered_map<std::string, std::vector<size_t>>().swap(player_index_);
+    std::unordered_map<std::string, std::vector<size_t>>().swap(eco_index_);
+    std::unordered_map<std::string, std::vector<size_t>>().swap(event_index_);
+    std::unordered_map<std::string, std::vector<size_t>>().swap(site_index_);
+}
+
+void Pgn::Database::Database::print_stats(std::ostream& stream) const {
+    stream << "=====Database statistics=====\n";
+    stream << "Total games: " << games_.size() << '\n';
+    stream << "\n";
+
+
 }
