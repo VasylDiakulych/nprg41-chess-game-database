@@ -1,8 +1,11 @@
 #include "Cli.h"
 #include <cctype>
+#include <cstddef>
 #include <iostream>
+#include <optional>
+#include <string>
+#include <map>
 #include "../General/Tokens.h"
-#include "../General/Exception.h"
 
 std::string Pgn::Cli::Application::trim_(std::string_view s) const {
     auto start = s.begin();
@@ -118,19 +121,94 @@ void Pgn::Cli::Application::init_cmd_map_() {
     cmd_map_[Commands::EXIT_2] = [this](const auto&) -> void { cmd_quit_(); };
 }
 
+void Pgn::Cli::Application::init_flag_map_() {
+    flag_map_[Flags::PLAYER] = [this](const std::string& val, auto& q) -> void { q.player_name = val; };
+    flag_map_[Flags::EVENT] = [this](const std::string& val, auto& q) -> void { q.event = val; };
+    flag_map_[Flags::SITE] = [this](const std::string& val, auto& q) -> void { q.site = val; };
+    flag_map_[Flags::ECO] = [this](const std::string& val, auto& q) -> void { q.eco = val; };
+    flag_map_[Flags::RESULT] = [this](const std::string& val, auto& q) -> void { q.result = val; };
+    flag_map_[Flags::DATE_MIN] = [this](const std::string& val, auto& q) -> void { q.date_min = val; };
+    flag_map_[Flags::DATE_MAX] = [this](const std::string& val, auto& q) -> void { q.date_max = val; };
+    flag_map_[Flags::OPENING] = [this](const std::string& val, auto&  q) -> void { q.opening = val; };
+    flag_map_[Flags::TIME_CONTROL] = [this](const std::string& val, auto& q) -> void { q.time_control = val; };
+
+    flag_map_[Flags::VERBOSE] = [this](const std::string& val, auto& q) -> void { verbose_ = val.empty() || val == "true"; };
+
+    flag_map_[Flags::LIMIT] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.limit = res.value();
+        else std::cout << "Invalid " << Flags::LIMIT << " value\n";
+    };
+    flag_map_[Flags::OFFSET] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.offset = res.value();
+        else std::cout << "Invalid " << Flags::OFFSET << " value\n";
+    };
+
+    flag_map_[Flags::COLOR] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_color_(val);
+        if(res.has_value()) q.player_color = res.value();
+        else std::cout << "Invalid " << Flags::COLOR << " value\n";
+    };
+
+    flag_map_[Flags::ELO_MIN] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.elo_min = res.value();
+        else std::cout << "Invalid " << Flags::ELO_MIN << " value\n";
+    };
+    flag_map_[Flags::ELO_MAX] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.elo_max = res.value();
+        else std::cout << "Invalid " << Flags::ELO_MAX << " value\n";
+    };
+
+    flag_map_[Flags::PLY_MIN] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.ply_count_min = res.value();
+        else std::cout << "Invalid " << Flags::PLY_MIN << " value\n";
+    };
+    flag_map_[Flags::PLY_MAX] = [this](const std::string& val, auto& q) -> void { 
+        auto res = parse_int_(val);
+        if(res.has_value()) q.ply_count_max = res.value();
+        else std::cout << "Invalid " << Flags::PLY_MAX << " value\n";
+    };
+
+}
+
+std::optional<int> Pgn::Cli::Application::parse_int_(const std::string& val){
+    try {
+        size_t pos;
+        int parsed = std::stoi(val, &pos);
+        if(pos == val.size()){
+            return parsed;
+        }
+        return std::nullopt;
+    }
+    catch(...){
+        return std::nullopt;
+    }
+}
+            
+std::optional<Pgn::Database::ColorTarget> Pgn::Cli::Application::parse_color_(const std::string& val) {
+    if (val == "w") return Pgn::Database::ColorTarget::White;
+    if (val == "b") return Pgn::Database::ColorTarget::Black;
+    if (val == "any") return Pgn::Database::ColorTarget::Any;
+    return std::nullopt;
+}
+
 void Pgn::Cli::Application::cmd_quit_() {
     running_ = false;
     std::cout << "Goodbye!\n";
 }
 
 void Pgn::Cli::Application::cmd_clear_() {
-    db.clear();
-    last_search_result.clear();
+    db_.clear();
+    last_search_result_.clear();
     std::cout << "Database successfully cleared\n";
 }
 
 void Pgn::Cli::Application::cmd_stats_() {
-    db.print_stats();
+    db_.print_stats();
 }
 
 void Pgn::Cli::Application::cmd_help_(const ParsedCommand& cmd) {
@@ -157,16 +235,37 @@ void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
     }
 
     auto filename = cmd.args[0];
-    auto prev_size = db.size();
-    last_search_result.clear();
-    parser.parse_file(filename, db);
-    auto new_size = db.size();
+    auto prev_size = db_.size();
+    last_search_result_.clear();
+    parser_.parse_file(filename, db_);
+    auto new_size = db_.size();
 
     std::cout << "Successfully parsed " << new_size - prev_size << " games!\n";
 };
 
 void Pgn::Cli::Application::cmd_search_(const ParsedCommand& cmd) {
-    std::cout <<"Search is not implemented yet. Sorry.\n";
+    Database::Query query;
+    
+    for (const auto& [name, value] : cmd.flags) {
+        if (auto it = flag_map_.find(name); it != flag_map_.end()) {
+            it->second(value, query);
+        }
+    }
+    
+    last_search_result_ = db_.search(query);
+    
+    if(!verbose_) {
+        for (const auto* game : last_search_result_) {
+            writer_.write_game_compact(*game, std::cout);
+        }
+    }
+    else{
+        for (const auto* game : last_search_result_) {
+            writer_.write_game(*game, std::cout);
+        }
+    }
+    
+    std::cout << "Found " << last_search_result_.size() << " games\n";
 }
 
 void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
@@ -184,15 +283,15 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
     if(cmd.args.size() == 2){
         auto option = cmd.args[1];
         if(option == "results"){
-            if(last_search_result.empty()) {
+            if(last_search_result_.empty()) {
                 std::cout << "Cannot export games, you did not search for anything or search result is empty!\n";
                 return;
             }
-            writer.write_games(last_search_result, filename);
+            writer_.write_games(last_search_result_, filename);
             std::cout << "Successfully exported last search result into the file " << filename << "!\n";
         }
         else if(option == "all"){ 
-            writer.write_games(db, filename);
+            writer_.write_games(db_, filename);
             std::cout<< "Successfully exported all games into the file " << filename << "!\n";
         }
         else {
@@ -206,7 +305,7 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
         return;
     }
 
-    writer.write_games(db, filename);
+    writer_.write_games(db_, filename);
     std::cout<< "Successfully exported all games into the file " << filename << "!\n";
 }
 

@@ -5,11 +5,11 @@
 #include "../Writer/Writer.h"
 #include "../Database/Database.h"
 #include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 
 namespace Pgn {
     namespace Commands{
@@ -34,6 +34,10 @@ namespace Pgn {
         constexpr const char* DATE_MIN = "date-min";
         constexpr const char* DATE_MAX = "date-max";
         constexpr const char* COLOR = "color";
+        constexpr const char* PLY_MIN = "ply-count-min";
+        constexpr const char* PLY_MAX = "ply-count-max";
+        constexpr const char* OPENING = "opening";
+        constexpr const char* TIME_CONTROL = "time-control";
         constexpr const char* LIMIT = "limit";
         constexpr const char* OFFSET = "offset";
         constexpr const char* VERBOSE = "verbose";
@@ -59,6 +63,10 @@ namespace Pgn {
             "  --result <r>        Filter by result (1-0, 0-1, 1/2-1/2, *)\n"
             "  --date-min <date>   Minimum date (YYYY.MM.DD)\n"
             "  --date-max <date>   Maximum date (YYYY.MM.DD)\n"
+            "  --ply-count-min     Minimum ply-count\n"
+            "  --ply-count-max     Maximum plu-count\n"
+            "  --opening           Filter by game opening\n"
+            "  --time-control      Filter by time-control\n"
             "  --limit <n>         Max results (default: 20)\n"
             "  --offset <n>        Skip first N results\n"
             "  --verbose           Show full PGN output\n"
@@ -102,19 +110,24 @@ namespace Pgn {
         class Application{
         private:
 
-            Parser::Parser parser;
-            Writer::Writer writer;
-            Database::Database db;
-            std::vector<const Pgn::Model::Game*> last_search_result;
+            Parser::Parser parser_;
+            Writer::Writer writer_;
+            Database::Database db_;
+            std::vector<const Pgn::Model::Game*> last_search_result_;
+            bool verbose_ = false;
 
             std::unordered_map<std::string_view, const char*> help_map_;
-            std::unordered_map<std::string_view,  std::function<void(const ParsedCommand&)>> cmd_map_;
+            std::unordered_map<std::string_view, std::function<void(const ParsedCommand&)>> cmd_map_;
+            std::unordered_map<std::string_view, std::function<void(const std::string&, Database::Query&)>> flag_map_;
             bool running_ = false;
             
             std::string trim_(std::string_view s) const;
             std::vector<std::string> split_args_(std::string_view line) const;
             ParsedCommand parse_command_line_(const std::vector<std::string>& args) const;
             
+            std::optional<int> parse_int_(const std::string& val);
+            std::optional<Database::ColorTarget> parse_color_(const std::string& val);
+ 
             void print_prompt_() const;
             
             void init_cmd_map_();
@@ -129,11 +142,13 @@ namespace Pgn {
             void cmd_help_(const ParsedCommand& cmd);
 
             void init_help_map_();
+            void init_flag_map_();
 
         public:
             Application() {
                 init_help_map_();
                 init_cmd_map_();
+                init_flag_map_();
             };
             ~Application() = default;
 
