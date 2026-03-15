@@ -4,7 +4,6 @@
 #include <iostream>
 #include <optional>
 #include <string>
-#include <map>
 #include "../General/Tokens.h"
 
 std::string Pgn::Cli::Application::trim_(std::string_view s) const {

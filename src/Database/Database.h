@@ -3,8 +3,10 @@
 
 #include <cstddef>
 #include <iostream>
+#include <map>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 #include <unordered_map>
 #include <optional>
@@ -41,16 +43,17 @@ namespace Pgn::Database {
         private:
             std::vector<Pgn::Model::Game> games_;
 
-            std::unordered_map<std::string, std::vector<size_t>> player_index_;
-            std::unordered_map<std::string, std::vector<size_t>> event_index_;
-            std::unordered_map<std::string, std::vector<size_t>> site_index_;
+            std::map<std::string, std::vector<size_t>> player_index_;
+            std::map<std::string, std::vector<size_t>> event_index_;
+            std::map<std::string, std::vector<size_t>> site_index_;
             std::unordered_map<std::string, std::vector<size_t>> eco_index_;
 
             [[nodiscard]] static std::string normalize_key_(std::string_view key);
             static bool matched_(std::string_view str1, std::string_view str2);
+            [[nodiscard]] static int calculate_quality_(std::string_view key, std::string_view search);
             
-            [[nodiscard]] std::optional<std::vector<const std::vector<size_t>*>> indexed_search_(const Query& query) const;
-            [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<const std::vector<size_t>*>& indices_val) const;
+            [[nodiscard]] std::optional<std::vector<std::unordered_set<size_t>>> indexed_search_(const Query& query) const;
+            [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<std::unordered_set<size_t>>& indices_val) const;
             bool satisfies_predicates_(const Pgn::Model::Game& game, const Query& query, bool check_all, std::string_view norm_player) const;
 
         public:
