@@ -1,5 +1,6 @@
 #include "Cli.h"
 #include <cctype>
+#include <chrono>
 #include <cstddef>
 #include <iostream>
 #include <optional>
@@ -69,10 +70,20 @@ Pgn::Cli::ParsedCommand Pgn::Cli::Application::parse_command_line_(const std::ve
             if (eq_pos != std::string::npos) {
                 std::string flag_name = arg.substr(2, eq_pos - 2);
                 std::string flag_value = arg.substr(eq_pos + 1);
+
+                if (cmd.flags.count(flag_name) > 0) {
+                    cmd.error_msg = "Duplicate flag --" + flag_name;
+                    return cmd;
+                }
+                
                 cmd.flags[std::move(flag_name)] = std::move(flag_value);
             } 
             else {
                 std::string flag_name = arg.substr(2);
+                if (cmd.flags.count(flag_name) > 0) {
+                    cmd.error_msg = "Duplicate flag --" + flag_name;
+                    return cmd; 
+                }  
                 if (i + 1 < args.size() && !args[i + 1].empty() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
                     cmd.flags[std::move(flag_name)] = args[++i];
                 } else {
@@ -81,6 +92,10 @@ Pgn::Cli::ParsedCommand Pgn::Cli::Application::parse_command_line_(const std::ve
             }
         } else if (arg.size() > 1 && arg[0] == Tokens::FLAG_PREFIX) {
             std::string flag_name = arg.substr(1);
+            if (cmd.flags.count(flag_name) > 0) {
+                cmd.error_msg = "Duplicate flag --" + flag_name;
+                return cmd; 
+            }
             if (i + 1 < args.size() && !args[i + 1].empty() && args[i + 1][0] != Tokens::FLAG_PREFIX) {
                 cmd.flags[std::move(flag_name)] = args[++i];
             } else {
@@ -232,15 +247,25 @@ void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
         std::cout << "File name is missing!\n";
         return;
     }
-
     auto filename = cmd.args[0];
     auto prev_size = db_.size();
     last_search_result_.clear();
-    parser_.parse_file(filename, db_);
-    auto new_size = db_.size();
 
-    std::cout << "Successfully parsed " << new_size - prev_size << " games!\n";
-};
+    auto start = std::chrono::steady_clock::now();
+    parser_.parse_file(filename, db_);
+    auto end = std::chrono::steady_clock::now();
+    auto total_duration = duration_cast<std::chrono::microseconds>(end - start).count();
+
+    auto new_size = db_.size();
+    auto total_added = new_size - prev_size;
+    if (total_added > 0) {
+        double avgTime = static_cast<double>(total_duration) / total_added;
+        std::cout << "Parsed " << total_added << " games." << std::endl;
+        std::cout << "Total time: " << total_duration / 1000.0 << " ms" << std::endl;
+        std::cout << "Average time per game: " << avgTime << " us" << std::endl;
+    }
+    std::cout << "Successfully parsed " << total_added << " games!\n";
+}
 
 void Pgn::Cli::Application::cmd_search_(const ParsedCommand& cmd) {
     Database::Query query;
@@ -311,6 +336,11 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
 void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {
     if (cmd.name.empty()) {
         return;
+    }
+
+    if (cmd.error_msg.has_value()) {
+        std::cerr << "Error: " << cmd.error_msg.value() << '\n';
+        return;  
     }
     
     auto it = cmd_map_.find(cmd.name);

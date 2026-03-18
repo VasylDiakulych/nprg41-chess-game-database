@@ -28,11 +28,11 @@ namespace Pgn::Writer {
         Writer() = default;
         ~Writer() = default;
 
-        void write_game(const Model::Game& game, std::ostream& stream = std::cout);
-        void write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream = std::cout);
-        void write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename);
-        void write_games(const Database::Database& db, std::ostream& stream = std::cout);
-        void write_games(const Database::Database& db, const std::string& filename);
+        void write_game(const Model::Game& game, std::ostream& stream = std::cout) const;
+        void write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream = std::cout) const;
+        void write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename) const;
+        void write_games(const Database::Database& db, std::ostream& stream = std::cout) const;
+        void write_games(const Database::Database& db, const std::string& filename) const;
         void write_game_compact(const Model::Game& game, std::ostream& stream = std::cout) const;
     };
 }

@@ -50,7 +50,35 @@ namespace Pgn::Database {
 
             [[nodiscard]] static std::string normalize_key_(std::string_view key);
             static bool matched_(std::string_view str1, std::string_view str2);
-            [[nodiscard]] static int calculate_quality_(std::string_view key, std::string_view search);
+
+            template<typename IndexType>
+            std::optional<std::unordered_set<size_t>> search_prefix_(const IndexType& index, const std::optional<std::string>& query_val) const {
+                if (!query_val) return std::nullopt;
+                
+                std::unordered_set<size_t> result;
+                auto normalized = normalize_key_(query_val.value());
+                auto start = index.lower_bound(normalized);
+                
+                while (start != index.end()) {
+                    if (start->first.compare(0, normalized.size(), normalized) != 0) 
+                        break;
+                    result.insert(start->second.begin(), start->second.end());
+                    ++start;
+                }
+                
+                if (result.empty()) return std::nullopt;
+                return result;
+            }
+
+            template<typename IndexType>
+            std::optional<std::unordered_set<size_t>> search_exact_(const IndexType& index, const std::optional<std::string>& query_val) const {
+                if (!query_val.has_value()) return std::nullopt;
+                
+                auto it = index.find(normalize_key_(query_val.value()));
+                if (it == index.end()) return std::nullopt;
+                
+                return std::unordered_set<size_t>(it->second.begin(), it->second.end());
+            }
             
             [[nodiscard]] std::optional<std::vector<std::unordered_set<size_t>>> indexed_search_(const Query& query) const;
             [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<std::unordered_set<size_t>>& indices_val) const;

@@ -58,7 +58,7 @@ void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key,
     stream << Tokens::TAG_OPEN << key << " \"" << value.value() << Tokens::VALUE_DELIM << Tokens::TAG_CLOSE << "\n";
 }
 
-void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stream) {
+void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
 
     write_tag_(stream, Tokens::EVENT, data.event);
@@ -83,14 +83,14 @@ void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stre
     stream << std::endl;
 }
 
-void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream){
+void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream) const {
     for (const auto& game : games) {
         write_game(*game, stream);
         stream << std::endl;
     }
 }
 
-void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename){
+void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, const std::string& filename) const {
     std::ofstream stream;
     stream.open(filename);
     if (stream.good()) {
@@ -102,15 +102,14 @@ void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*>
     stream.close();
 }
 
-void Pgn::Writer::Writer::write_games(const Database::Database& db, std::ostream& stream) {
+void Pgn::Writer::Writer::write_games(const Database::Database& db, std::ostream& stream) const {
     auto games = db.get_games();
     for (const auto& game : games) {
         write_game(game, stream);
-        stream << std::endl;
     }
 }
 
-void Pgn::Writer::Writer::write_games(const Database::Database& db, const std::string& filename){
+void Pgn::Writer::Writer::write_games(const Database::Database& db, const std::string& filename) const {
     std::ofstream stream;
     stream.open(filename);
     if (stream.good()) {

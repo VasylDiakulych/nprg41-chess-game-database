@@ -49,39 +49,32 @@ void Pgn::Database::Database::add_game(Pgn::Model::Game&& game){
 std::optional<std::vector<std::unordered_set<size_t>>> Pgn::Database::Database::indexed_search_(const Pgn::Database::Query& query) const {
     std::vector<std::unordered_set<size_t>> field_sets;
 
-    auto collect_prefix_ = [&](const auto& index, const std::string& normalized) 
-        -> std::optional<std::unordered_set<size_t>> 
-    {
-        std::unordered_set<size_t> result;
-        auto start = index.lower_bound(normalized);
-        while (start != index.end()) {
-            if (start->first.compare(0, normalized.size(), normalized) != 0) break;
-            result.insert(start->second.begin(), start->second.end());
-            ++start;
+    if (query.event.has_value()) {
+        auto s = search_prefix_(event_index_, query.event);
+        if (s.has_value()) {
+            field_sets.emplace_back(std::move(s.value()));
         }
-        if (result.empty()) return std::nullopt;
-        return result;
-    };
+    } 
 
-    if (query.event) {
-        auto s = collect_prefix_(event_index_, normalize_key_(query.event.value()));
-        if (!s) return std::nullopt;
-        field_sets.push_back(std::move(*s));
+    if (query.site.has_value()) {
+        auto s = search_prefix_(site_index_, query.site);
+        if (s.has_value()) {
+            field_sets.emplace_back(std::move(s.value()));
+        }
     }
-    if (query.site) {
-        auto s = collect_prefix_(site_index_, normalize_key_(query.site.value()));
-        if (!s) return std::nullopt;
-        field_sets.push_back(std::move(*s));
+    
+    if (query.player_name.has_value()) {
+        auto s = search_prefix_(player_index_, query.player_name);
+        if (s.has_value()) {
+            field_sets.emplace_back(std::move(s.value()));
+        }
     }
-    if (query.player_name) {
-        auto s = collect_prefix_(player_index_, normalize_key_(query.player_name.value()));
-        if (!s) return std::nullopt;
-        field_sets.push_back(std::move(*s));
-    }
-    if (query.eco) {
-        auto it = eco_index_.find(normalize_key_(query.eco.value()));
-        if (it == eco_index_.end()) return std::nullopt;
-        field_sets.push_back({it->second.begin(), it->second.end()});
+
+    if (query.eco.has_value()) {
+        auto s = search_exact_(eco_index_, query.eco);
+        if (s.has_value()) {
+            field_sets.emplace_back(std::move(s.value()));
+        }
     }
 
     return field_sets;
@@ -218,7 +211,7 @@ std::vector<const Pgn::Model::Game*> Pgn::Database::Database::search(const Pgn::
 
 void Pgn::Database::Database::clear() {
     std::vector<Pgn::Model::Game>().swap(games_);
-    std::map<std::string, std::vector<size_t>>().swap(player_index_);;
+    std::map<std::string, std::vector<size_t>>().swap(player_index_);
     std::map<std::string, std::vector<size_t>>().swap(event_index_);
     std::map<std::string, std::vector<size_t>>().swap(site_index_);
     std::unordered_map<std::string, std::vector<size_t>>().swap(eco_index_);

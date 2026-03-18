@@ -80,7 +80,6 @@ void Pgn::Parser::Parser::parse_movetext_(std::string_view line, Database::Datab
                 evaluate_token_(current_token_, db);
                 current_token_.clear();
             
-
                 if (state_ != State::MOVETEXT) {
                     return; 
                 }

@@ -64,7 +64,7 @@ namespace Pgn {
             "  --date-min <date>   Minimum date (YYYY.MM.DD)\n"
             "  --date-max <date>   Maximum date (YYYY.MM.DD)\n"
             "  --ply-count-min     Minimum ply-count\n"
-            "  --ply-count-max     Maximum plu-count\n"
+            "  --ply-count-max     Maximum ply-count\n"
             "  --opening           Filter by game opening\n"
             "  --time-control      Filter by time-control\n"
             "  --limit <n>         Max results (default: 20)\n"
@@ -105,6 +105,7 @@ namespace Pgn {
             std::string name;
             std::unordered_map<std::string, std::string> flags;
             std::vector<std::string> args;
+            std::optional<std::string> error_msg;
         };
 
         class Application{
@@ -131,7 +132,7 @@ namespace Pgn {
             void print_prompt_() const;
             
             void init_cmd_map_();
-            void handle_command_(const ParsedCommand& cmd);
+            void handle_command_(const ParsedCommand &cmd);
             
             void cmd_quit_();
             void cmd_stats_();
@@ -143,7 +144,6 @@ namespace Pgn {
 
             void init_help_map_();
             void init_flag_map_();
-
         public:
             Application() {
                 init_help_map_();
