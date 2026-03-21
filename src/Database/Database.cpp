@@ -1,6 +1,7 @@
 #include "Database.h"
 #include "../General/Model.h"
 #include <cstddef>
+#include <iomanip>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -217,10 +218,132 @@ void Pgn::Database::Database::clear() {
     std::unordered_map<std::string, std::vector<size_t>>().swap(eco_index_);
 }
 
-void Pgn::Database::Database::print_stats(std::ostream& stream) const {
-    stream << "=====Database statistics=====\n";
-    stream << "Total games: " << games_.size() << '\n';
+Pgn::Database::DBStats Pgn::Database::Database::gather_statistics_() const{
+    Pgn::Database::DBStats stats;
+    stats.total_games = games_.size();
+    
+    std::unordered_set<std::string> unique_players;
+    std::unordered_map<std::string, size_t> player_games;
+    std::unordered_map<std::string, size_t> eco_counts;
+    
+    size_t total_ply = 0;
+    size_t games_with_ply = 0;
+    std::string oldest = "9999.99.99";
+    std::string newest = "0000.00.00";
+    bool has_date = false;
+
+    for (const auto& game : games_) {
+        const auto& data = game.data();
+        
+        // Unique players
+        auto white_norm = normalize_key_(data.white);
+        auto black_norm = normalize_key_(data.black);
+        unique_players.insert(white_norm);
+        unique_players.insert(black_norm);
+        player_games[white_norm]++;
+        player_games[black_norm]++;
+        
+        // Results
+        if (data.result == "1-0") stats.white_wins++;
+        else if (data.result == "0-1") stats.black_wins++;
+        else if (data.result == "1/2-1/2") stats.draws++;
+        else stats.unknown++;
+        
+        // Dates
+        if (!data.date.empty() && data.date != "????.??.??") {
+            has_date = true;
+            if (data.date < oldest) oldest = data.date;
+            if (data.date > newest) newest = data.date;
+        }
+        
+        // Game length
+        if (data.ply_count.has_value()) {
+            total_ply += data.ply_count.value();
+            games_with_ply++;
+        }
+        
+        // ECO codes
+        if (data.eco.has_value()) {
+            eco_counts[data.eco.value()]++;
+        }
+    }
+    
+    stats.unique_players = unique_players.size();
+    if (has_date) {
+        stats.oldest_date = oldest;
+        stats.newest_date = newest;
+    }
+    if (games_with_ply > 0) {
+        stats.avg_ply = static_cast<double>(total_ply) / games_with_ply;
+        stats.rated_games = games_with_ply;
+    }
+    
+    // Sort for top 10
+    stats.players_by_games.assign(player_games.begin(), player_games.end());
+    std::sort(stats.players_by_games.begin(), stats.players_by_games.end(),
+        [](const auto& a, const auto& b) { return a.second > b.second; });
+    
+    stats.openings_by_freq.assign(eco_counts.begin(), eco_counts.end());
+    std::sort(stats.openings_by_freq.begin(), stats.openings_by_freq.end(),
+        [](const auto& a, const auto& b) { return a.second > b.second; });
+    
+    return stats;
+}
+
+void Pgn::Database::Database::print_stats(std::ostream& stream, bool detailed) const {
+    auto stats = gather_statistics_();
+    
+    stream << "===== Database Statistics =====\n\n";
+    stream << "Total games: " << stats.total_games << "\n";
+    stream << "Unique players: " << stats.unique_players << "\n\n";
+    
+    // Results with 2 decimal places
+    stream << "Results:\n";
+    double total = stats.total_games;
+    stream << "  White wins: " << std::fixed << std::setprecision(2)
+           << (stats.white_wins * 100.0 / total) << "% (" << stats.white_wins << ")\n";
+    stream << "  Black wins: " << (stats.black_wins * 100.0 / total) 
+           << "% (" << stats.black_wins << ")\n";
+    stream << "  Draws:      " << (stats.draws * 100.0 / total) 
+           << "% (" << stats.draws << ")\n";
+    stream << "  Unknown:    " << (stats.unknown * 100.0 / total) 
+           << "% (" << stats.unknown << ")\n\n";
+    
+    // Date range
+    stream << "Date range: " << stats.oldest_date << " - " << stats.newest_date << "\n";
+    
+    if (detailed) {
+        // Game length
+        if (stats.rated_games > 0) {
+            stream << "Average game length: " << std::fixed << std::setprecision(2) 
+                   << stats.avg_ply << " moves (from " << stats.rated_games << " rated games)\n\n";
+        }
+        
+        // Top 10 players
+        size_t n = std::min(size_t(10), stats.players_by_games.size());
+        stream << "Top " << n << " Most Active Players:\n";
+        for (size_t i = 0; i < n; ++i) {
+            stream << "  " << std::setw(2) << (i + 1) << ". " 
+                   << std::left << std::setw(30) << stats.players_by_games[i].first 
+                   << std::right << std::setw(6) << stats.players_by_games[i].second 
+                   << " games\n";
+        }
+        stream << "\n";
+        
+        // Top 10 openings
+        n = std::min(size_t(10), stats.openings_by_freq.size());
+        size_t total_eco = 0;
+        for (const auto& [eco, count] : stats.openings_by_freq) total_eco += count;
+        
+        stream << "Top " << n << " Most Popular Openings:\n";
+        for (size_t i = 0; i < n; ++i) {
+            double pct = (total_eco == 0) ? 0.0 : (stats.openings_by_freq[i].second * 100.0 / total_eco);
+            stream << "  " << std::setw(2) << (i + 1) << ". " 
+                   << std::left << std::setw(6) << stats.openings_by_freq[i].first 
+                   << std::right << std::setw(6) << stats.openings_by_freq[i].second 
+                   << " games (" << std::fixed << std::setprecision(2) << pct << "%)\n";
+        }
+    }
+    
     stream << "\n";
-
-
 }

@@ -47,7 +47,7 @@ namespace Pgn {
         constexpr const char* LOAD = 
             "Usage: load <filename>\n"
             "Load a PGN file into the database.\n"
-            "Example: load pgn_files/Akobian.pgn";
+            "Example: load pgn_files/Carlsen.pgn";
         
         constexpr const char* SEARCH = 
             "Usage: search [options]\n"
@@ -80,8 +80,9 @@ namespace Pgn {
             "Example: export my_games.pgn results";
         
         constexpr const char* STATS = 
-            "Usage: stats\n"
-            "Show database statistics (total games, players, date range, etc.)";
+            "Usage: stats [detailed|verbose|none] \n"
+            "Show database statistics (total games, players, date range, etc.)\n"
+            "Use 'verbose' or 'detailed' argument to see more statisctics";
         
         constexpr const char* CLEAR = 
             "Usage: clear\n"
@@ -135,7 +136,7 @@ namespace Pgn {
             void handle_command_(const ParsedCommand &cmd);
             
             void cmd_quit_();
-            void cmd_stats_();
+            void cmd_stats_(const ParsedCommand& cmd);
             void cmd_clear_();
             void cmd_load_(const ParsedCommand& cmd);
             void cmd_search_(const ParsedCommand& cmd);

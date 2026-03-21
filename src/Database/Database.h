@@ -16,6 +16,25 @@ namespace Pgn::Database {
 
     enum class ColorTarget { Any, White, Black };
 
+    struct DBStats {
+        size_t total_games = 0;
+        size_t unique_players = 0;
+
+        size_t white_wins = 0;
+        size_t black_wins = 0;
+        size_t draws = 0;
+        size_t unknown = 0;
+    
+        std::string oldest_date = "unknown";
+        std::string newest_date = "unknown";
+
+        size_t avg_ply = 0;
+        size_t rated_games = 0;
+
+        std::vector<std::pair<std::string, size_t>> players_by_games;
+        std::vector<std::pair<std::string, size_t>> openings_by_freq;
+    };
+
     struct Query {
         std::optional<std::string> player_name;
         ColorTarget player_color = ColorTarget::Any;
@@ -84,6 +103,17 @@ namespace Pgn::Database {
             [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<std::unordered_set<size_t>>& indices_val) const;
             bool satisfies_predicates_(const Pgn::Model::Game& game, const Query& query, bool check_all, std::string_view norm_player) const;
 
+            DBStats gather_statistics_() const;
+
+            // Basic stats
+            void print_basic_stats_(std::ostream& stream) const;
+            void print_result_distribution_(std::ostream& stream) const;
+            void print_date_range_(std::ostream& stream) const;
+
+            // Detailed stats
+            void print_top_players_(std::ostream& stream, size_t n = 10) const;
+            void print_top_openings_(std::ostream& stream, size_t n = 10) const;
+            
         public:
             
             void clear();
@@ -94,7 +124,7 @@ namespace Pgn::Database {
 
             void add_game(Pgn::Model::Game&& game);
             [[nodiscard]] std::vector<const Pgn::Model::Game*> search(const Query& query) const;
-            void print_stats(std::ostream& stream = std::cout) const;
+            void print_stats(std::ostream& stream = std::cout, bool detailed = false) const;
     };
 
 }

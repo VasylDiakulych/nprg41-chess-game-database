@@ -2,9 +2,11 @@
 #include <cctype>
 #include <chrono>
 #include <cstddef>
+#include <exception>
 #include <iostream>
 #include <optional>
 #include <string>
+#include "../General/Exception.h"
 #include "../General/Tokens.h"
 
 std::string Pgn::Cli::Application::trim_(std::string_view s) const {
@@ -128,7 +130,7 @@ void Pgn::Cli::Application::init_cmd_map_() {
     cmd_map_[Commands::LOAD] = [this](const auto& cmd) -> void { cmd_load_(cmd); };
     cmd_map_[Commands::SEARCH] = [this](const auto& cmd) -> void { cmd_search_(cmd); };
     cmd_map_[Commands::EXPORT] = [this](const auto& cmd) -> void { cmd_export_(cmd); };
-    cmd_map_[Commands::STATS] = [this](const auto&) -> void { cmd_stats_(); };
+    cmd_map_[Commands::STATS] = [this](const auto& cmd) -> void { cmd_stats_(cmd); };
     cmd_map_[Commands::CLEAR] = [this](const auto&) -> void { cmd_clear_(); };
     cmd_map_[Commands::HELP] = [this](const auto& cmd) -> void { cmd_help_(cmd); };
     cmd_map_[Commands::EXIT_1] = [this](const auto&) -> void { cmd_quit_(); };
@@ -151,40 +153,40 @@ void Pgn::Cli::Application::init_flag_map_() {
     flag_map_[Flags::LIMIT] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.limit = res.value();
-        else std::cout << "Invalid " << Flags::LIMIT << " value\n";
+        else std::cerr << "Invalid " << Flags::LIMIT << " value\n";
     };
     flag_map_[Flags::OFFSET] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.offset = res.value();
-        else std::cout << "Invalid " << Flags::OFFSET << " value\n";
+        else std::cerr << "Invalid " << Flags::OFFSET << " value\n";
     };
 
     flag_map_[Flags::COLOR] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_color_(val);
         if(res.has_value()) q.player_color = res.value();
-        else std::cout << "Invalid " << Flags::COLOR << " value\n";
+        else std::cerr << "Invalid " << Flags::COLOR << " value\n";
     };
 
     flag_map_[Flags::ELO_MIN] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.elo_min = res.value();
-        else std::cout << "Invalid " << Flags::ELO_MIN << " value\n";
+        else std::cerr << "Invalid " << Flags::ELO_MIN << " value\n";
     };
     flag_map_[Flags::ELO_MAX] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.elo_max = res.value();
-        else std::cout << "Invalid " << Flags::ELO_MAX << " value\n";
+        else std::cerr << "Invalid " << Flags::ELO_MAX << " value\n";
     };
 
     flag_map_[Flags::PLY_MIN] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.ply_count_min = res.value();
-        else std::cout << "Invalid " << Flags::PLY_MIN << " value\n";
+        else std::cerr << "Invalid " << Flags::PLY_MIN << " value\n";
     };
     flag_map_[Flags::PLY_MAX] = [this](const std::string& val, auto& q) -> void { 
         auto res = parse_int_(val);
         if(res.has_value()) q.ply_count_max = res.value();
-        else std::cout << "Invalid " << Flags::PLY_MAX << " value\n";
+        else std::cerr << "Invalid " << Flags::PLY_MAX << " value\n";
     };
 
 }
@@ -221,8 +223,16 @@ void Pgn::Cli::Application::cmd_clear_() {
     std::cout << "Database successfully cleared\n";
 }
 
-void Pgn::Cli::Application::cmd_stats_() {
-    db_.print_stats();
+void Pgn::Cli::Application::cmd_stats_(const ParsedCommand& cmd) {
+    if(cmd.args.empty()) {
+        db_.print_stats();
+    }
+    else{
+        auto arg = cmd.args[0];
+        if(arg == "verbose" || arg == "detailed"){
+            db_.print_stats(std::cout, true);
+        }
+    }
 }
 
 void Pgn::Cli::Application::cmd_help_(const ParsedCommand& cmd) {
@@ -247,24 +257,31 @@ void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
         std::cout << "File name is missing!\n";
         return;
     }
+
     auto filename = cmd.args[0];
     auto prev_size = db_.size();
     last_search_result_.clear();
 
-    auto start = std::chrono::steady_clock::now();
-    parser_.parse_file(filename, db_);
-    auto end = std::chrono::steady_clock::now();
-    auto total_duration = duration_cast<std::chrono::microseconds>(end - start).count();
+    try{
+        auto start = std::chrono::steady_clock::now();
+        parser_.parse_file(filename, db_);
+        auto end = std::chrono::steady_clock::now();
+        auto total_duration = duration_cast<std::chrono::microseconds>(end - start).count();
 
-    auto new_size = db_.size();
-    auto total_added = new_size - prev_size;
-    if (total_added > 0) {
-        double avgTime = static_cast<double>(total_duration) / total_added;
-        std::cout << "Parsed " << total_added << " games." << std::endl;
-        std::cout << "Total time: " << total_duration / 1000.0 << " ms" << std::endl;
-        std::cout << "Average time per game: " << avgTime << " us" << std::endl;
+        auto new_size = db_.size();
+        auto total_added = new_size - prev_size;
+        if (total_added > 0) {
+            double avgTime = static_cast<double>(total_duration) / total_added;
+            std::cout << "Parsed " << total_added << " games." << std::endl;
+            std::cout << "Total time: " << total_duration / 1000.0 << " ms" << std::endl;
+            std::cout << "Average time per game: " << avgTime << " us" << std::endl;
+        }
+        std::cout << "Successfully parsed " << total_added << " games!\n";
+    } catch(const Pgn::Exception& e){
+         std::cerr << "Error loading file: " << e.what() << "\n";
+    } catch(const std::exception& e){
+        std::cerr << "Unexpected error: " << e.what() << "\n";
     }
-    std::cout << "Successfully parsed " << total_added << " games!\n";
 }
 
 void Pgn::Cli::Application::cmd_search_(const ParsedCommand& cmd) {
@@ -304,33 +321,39 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
 
     auto filename = cmd.args[0];
 
-    if(cmd.args.size() == 2){
-        auto option = cmd.args[1];
-        if(option == "results"){
-            if(last_search_result_.empty()) {
-                std::cout << "Cannot export games, you did not search for anything or search result is empty!\n";
-                return;
+    try{
+        if(cmd.args.size() == 2){
+            auto option = cmd.args[1];
+            if(option == "results"){
+                if(last_search_result_.empty()) {
+                    std::cout << "Cannot export games, you did not search for anything or search result is empty!\n";
+                    return;
+                }
+                writer_.write_games(last_search_result_, filename);
+                std::cout << "Successfully exported last search result into the file " << filename << "!\n";
             }
-            writer_.write_games(last_search_result_, filename);
-            std::cout << "Successfully exported last search result into the file " << filename << "!\n";
+            else if(option == "all"){ 
+                writer_.write_games(db_, filename);
+                std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+            }
+            else {
+                std::cout <<  "Unknown option <" << option << ">, please use [results|all].\n";
+            }
+            return;
         }
-        else if(option == "all"){ 
-            writer_.write_games(db_, filename);
-            std::cout<< "Successfully exported all games into the file " << filename << "!\n";
-        }
-        else {
-            std::cout <<  "Unknown option <" << option << ">, please use [results|all].\n";
-        }
-        return;
-    }
 
-    if(cmd.args.size() > 2){
-        std::cout <<  "Wrong number of arguments, please use [results|all].\n";
-        return;
-    }
+        if(cmd.args.size() > 2){
+            std::cout <<  "Wrong number of arguments, please use [results|all].\n";
+            return;
+        }
 
-    writer_.write_games(db_, filename);
-    std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+        writer_.write_games(db_, filename);
+        std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+    } catch (const Pgn::Exception& e){
+        std::cerr << "Error exporting into file: " << e.what() << "\n";
+    } catch (const std::exception& e){
+        std::cerr << "Unexpected error: " << e.what() << "\n";
+    }
 }
 
 void Pgn::Cli::Application::handle_command_(const ParsedCommand& cmd) {
