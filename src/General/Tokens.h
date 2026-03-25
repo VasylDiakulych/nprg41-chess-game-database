@@ -3,7 +3,10 @@
 
 #include <string>
 #include <string_view>
+
+/// @brief Namespace containing named constants for tags and possible tokens used in parsing games
 namespace Pgn::Tokens{
+    // Tags
     constexpr std::string_view EVENT = "Event";
     constexpr std::string_view SITE = "Site";
     constexpr std::string_view DATE = "Date";
@@ -17,21 +20,22 @@ namespace Pgn::Tokens{
     constexpr std::string_view PLY_COUNT = "PlyCount";
     constexpr std::string_view OPENING = "Opening";
     constexpr std::string_view TIME_CONTROL = "TimeControl";
-
+    // Comments
     constexpr char COMMENT_OPEN = '{';
     constexpr char COMMENT_CLOSE = '}';
+    // Variations
     constexpr char VARIATION_OPEN = '(';
     constexpr char VARIATION_CLOSE = ')';
-
+    // Delimiters
     constexpr char WHITESPACE = ' ';
     constexpr char VALUE_DELIM = '"';
-
+    // Tag closure
     constexpr char TAG_OPEN = '[';
     constexpr char TAG_CLOSE = ']';
-
+    // Flags 
     constexpr char FLAG_PREFIX = '-';
     constexpr char EQUALS = '=';
-
+    /// @brief Helper function to determine if game terminates after the token
     inline bool is_termination(const std::string& token) {
         return (token == "1-0" || token == "0-1" || token == "1/2-1/2" || token == "*"); 
     }
