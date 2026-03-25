@@ -347,8 +347,14 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
             return;
         }
 
-        writer_.write_games(db_, filename);
-        std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+        if(!last_search_result_.empty()) {
+            writer_.write_games(last_search_result_, filename);
+            std::cout << "Successfully exported last search result into the file " << filename << "!\n";
+        }
+        else {
+            writer_.write_games(db_, filename);
+            std::cout<< "Successfully exported all games into the file " << filename << "!\n";
+        }
     } catch (const Pgn::Exception& e){
         std::cerr << "Error exporting into file: " << e.what() << "\n";
     } catch (const std::exception& e){
@@ -389,7 +395,7 @@ void Pgn::Cli::Application::run(){
         if (!std::getline(std::cin, line)) {
             break;
         }
-        
+
         auto trimmed = trim_(line);
         if (trimmed.empty()) {
             continue;
