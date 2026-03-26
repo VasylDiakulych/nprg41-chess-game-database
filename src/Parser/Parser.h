@@ -8,25 +8,33 @@
 #include <string_view>
 
 namespace Pgn {
+    /// @brief Contains PGN parsing functionality
+    /// @namespace Parser
     namespace Parser {
         
+        /// @brief Parser state machine states
+        /// @enum State
         enum class State{
-            SEARCHING,  // represents searching for the first tag in the file
-            TAG_PROCESSING, // processes tags(inside [...])
-            MOVETEXT  // processes moves after text
+            SEARCHING,  ///< Searching for the first tag in the file
+            TAG_PROCESSING, ///< Processing tags (inside [...]) 
+            MOVETEXT  ///< Processing moves after text 
         };
 
+        /// @brief PGN file parser class
+        /// @class Parser
         class Parser{
         private:
-            State state_;
-            Model::GameData current_data_;
-            std::unique_ptr<Model::Game> current_game_ = nullptr;
+            State state_; ///< Current parser state
+            Model::GameData current_data_; ///< Metadata of the game being parsed
+            std::unique_ptr<Model::Game> current_game_ = nullptr; ///< Game object under construction
 
-            //internal state for movetext parser
-            int comment_depth_ = 0; //pgn allows comments inside movetext inside {...}
-            int variation_depth_ = 0; //pgn allows "what if" timelines that differ from what was player, denoted (...)
-            std::string current_token_;
+            // Internal state for movetext parser
+            int comment_depth_ = 0; ///< Nesting level of curly brace comments 
+            int variation_depth_ = 0; ///< Nesting level of parenthesis variations 
+            std::string current_token_; ///< Current token being built
 
+            /// @brief Clears all game data fields
+            /// @details Resets current_data_ to default values for starting a new game
             void clear_data_(){
                 current_data_.event.clear();
                 current_data_.site.clear();
@@ -44,19 +52,37 @@ namespace Pgn {
                 current_data_.time_control = std::nullopt;
             }
 
+            /// @brief Parses an integer from a string view
+            /// @return Parsed integer value, or std::nullopt if parsing fails
             std::optional<int> parse_int_(std::string_view line);
+            
+            /// @brief Parses a PGN tag line
+            /// @details Extracts tag name and value and stores in current_data_
             void parse_tag_(std::string_view line); 
 
+            /// @brief Parses movetext section
+            /// @details Processes moves, comments, and variations
             void parse_movetext_(std::string_view line, Database::Database& db);
+            
+            /// @brief Evaluates a single token of movetext
+            /// @details Determines whether 
             void evaluate_token_(const std::string& token, Database::Database& db);
 
         public:
             
+            /// @brief Parses a PGN stream
+            /// @details Static entry point for parsing from any input stream
             static void parse(std::istream& stream, Database::Database& db);
+            
+            /// @brief Parses a PGN file
+            /// @details File wrapper for parse() 
             static void parse_file(const std::string& filename, Database::Database& db);
 
         };
         
+        
+        /// @brief Trims whitespace from both ends of a string
+        /// @details Removes leading and trailing whitespace characters
         inline std::string_view trim(std::string_view s) {
             const char* whitespace = " \t\n\r\f\v";
             
