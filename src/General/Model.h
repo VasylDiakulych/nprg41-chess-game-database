@@ -21,21 +21,21 @@ namespace Pgn :: Model{
     ///          Contains both 7 PGN mandatory fields and optional fields.
     struct GameData {
         // Mandatory PGN fields
-        std::string event;      ///Event name (e.g., "FIDE World Championship 2023")
-        std::string site;       ///Location in "City, Region COUNTRY" format
-        std::string date;       ///Date in "YYYY.MM.DD" format (???? for unknown)
-        std::string round;      ///Round number within the event
-        std::string white;      ///White player name ("Lastname, Firstname")
-        std::string black;      ///Black player name ("Lastname, Firstname")
-        std::string result;     ///Game result: "1-0", "0-1", "1/2-1/2", or "*"
+        std::string event;      ///< Event name (e.g., "FIDE World Championship 2023")
+        std::string site;       ///< Location in "City, Region COUNTRY" format
+        std::string date;       ///< Date in "YYYY.MM.DD" format (???? for unknown)
+        std::string round;      ///< Round number within the event
+        std::string white;      ///< White player name ("Lastname, Firstname")
+        std::string black;      ///< Black player name ("Lastname, Firstname")
+        std::string result;     ///< Game result: "1-0", "0-1", "1/2-1/2", or "*"
 
         // Optional fields
-        std::optional<int> white_elo;               ///White player's ELO rating
-        std::optional<int> black_elo;               ///Black player's ELO rating
-        std::optional<std::string> eco;             ///ECO opening code (e.g., "C42")
-        std::optional<std::string> opening;         ///Opening name
-        std::optional<int> ply_count;               ///Number of half-moves played
-        std::optional<std::string> time_control;    ///Time control (e.g., "300+3")
+        std::optional<int> white_elo;               ///< White player's ELO rating
+        std::optional<int> black_elo;               ///< Black player's ELO rating
+        std::optional<std::string> eco;             ///< ECO opening code (e.g., "C42")
+        std::optional<std::string> opening;         ///< Opening name
+        std::optional<int> ply_count;               ///< Number of half-moves played
+        std::optional<std::string> time_control;    ///< Time control (e.g., "300+3")
 
     };
 

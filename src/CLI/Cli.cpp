@@ -2,7 +2,7 @@
 #include <cctype>
 #include <chrono>
 #include <cstddef>
-#include <exception>
+#include <format>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -278,9 +278,7 @@ void Pgn::Cli::Application::cmd_load_(const ParsedCommand& cmd){
         }
         std::cout << "Successfully parsed " << total_added << " games!\n";
     } catch(const Pgn::Exception& e){
-         std::cerr << "Error loading file: " << e.what() << "\n";
-    } catch(const std::exception& e){
-        std::cerr << "Unexpected error: " << e.what() << "\n";
+         std::cerr << std::format(Pgn::LOAD_FILE_ERROR, e.what()) << "\n";
     }
 }
 
@@ -356,9 +354,7 @@ void Pgn::Cli::Application::cmd_export_(const ParsedCommand& cmd) {
             std::cout<< "Successfully exported all games into the file " << filename << "!\n";
         }
     } catch (const Pgn::Exception& e){
-        std::cerr << "Error exporting into file: " << e.what() << "\n";
-    } catch (const std::exception& e){
-        std::cerr << "Unexpected error: " << e.what() << "\n";
+        std::cerr << std::format(Pgn::EXPORT_FILE_ERROR, e.what()) << "\n";
     }
 }
 

@@ -77,9 +77,7 @@ namespace Pgn {
             /// @brief Parses a PGN file
             /// @details File wrapper for parse() 
             static void parse_file(const std::string& filename, Database::Database& db);
-
         };
-        
         
         /// @brief Trims whitespace from both ends of a string
         /// @details Removes leading and trailing whitespace characters

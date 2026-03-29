@@ -31,6 +31,15 @@ namespace Pgn {
 
     /// @brief Named constant for file exception
     constexpr const char* FILE_EXCEPTION = "Unable to open file <{}>";
+
+    /// @brief Named constant for unexpected error
+    constexpr const char* UNEXPECTED_ERROR = "Unexpected error: {}";
+
+    /// @brief Named constant for load file error
+    constexpr const char* LOAD_FILE_ERROR = "Error loading file: {}";
+
+    /// @brief Named constant for export file error  
+    constexpr const char* EXPORT_FILE_ERROR = "Error exporting into file: {}";
 }
 
 #endif
