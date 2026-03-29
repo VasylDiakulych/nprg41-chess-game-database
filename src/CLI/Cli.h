@@ -14,7 +14,6 @@
 namespace Pgn {
 
     /// @brief Command name constants
-    /// @namespace Commands
     namespace Commands{
         constexpr const char* EXIT_1 = "exit";      ///< Exit command variant 1
         constexpr const char* EXIT_2 = "quit";      ///< Exit command variant 2
@@ -27,7 +26,6 @@ namespace Pgn {
     }
 
     /// @brief Flag/option name constants for search command
-    /// @namespace Flags
     namespace Flags {
         constexpr const char* PLAYER = "player";            ///< Player name filter
         constexpr const char* ELO_MIN = "elo-min";          ///< Minimum Elo rating
@@ -49,7 +47,6 @@ namespace Pgn {
     }
 
     /// @brief Help text constants for each command
-    /// @namespace Help
     namespace Help {
         constexpr const char* LOAD = 
             "Usage: load <filename>\n"
@@ -106,7 +103,6 @@ namespace Pgn {
     }
 
     /// @brief Command-line interface functionality
-    /// @namespace Cli
     namespace Cli {
         /// @brief Initial capacity for argument vectors
         constexpr size_t ARGS_VEC_RESERVE = 8;
@@ -115,8 +111,6 @@ namespace Pgn {
         constexpr size_t ARG_STR_RESERVE = 32;
 
         /// @brief Parsed command structure
-        /// @struct ParsedCommand
-        /// @details Result of parsing a command line input
         struct ParsedCommand {
             std::string name;                                           ///< Command name
             std::unordered_map<std::string, std::string> flags;         ///< Flag key-value pairs
@@ -125,12 +119,11 @@ namespace Pgn {
         };
 
         /// @brief Main CLI application class
-        /// @class Application
         /// @details Handles command parsing, execution, and main loop
         class Application{
         private:
-            Parser::Parser parser_;                                     ///< PGN parser instance
-            Writer::Writer writer_;                                     ///< PGN writer instance
+            Parser::Parser parser_;                                     ///< Parser instance
+            Writer::Writer writer_;                                     ///< Writer instance
             Database::Database db_;                                     ///< Game database
             std::vector<const Pgn::Model::Game*> last_search_result_;   ///< Results from last search
             bool verbose_ = false;                                      ///< Verbose output flag
@@ -141,28 +134,18 @@ namespace Pgn {
             bool running_ = false;                                      ///< Application running state
 
             /// @brief Trims whitespace from a string
-            /// @param s String to trim
-            /// @return Trimmed string
             std::string trim_(std::string_view s) const;
 
             /// @brief Splits command line into arguments
-            /// @param line Input line
-            /// @return Vector of arguments
             std::vector<std::string> split_args_(std::string_view line) const;
 
             /// @brief Parses command line into structured command
-            /// @param args Vector of argument strings
-            /// @return Parsed command structure
             ParsedCommand parse_command_line_(const std::vector<std::string>& args) const;
 
             /// @brief Parses an integer from string
-            /// @param val String value
-            /// @return Parsed integer or nullopt on failure
             std::optional<int> parse_int_(const std::string& val);
 
             /// @brief Parses color target from string
-            /// @param val String value ("w", "b", "white", "black", "any")
-            /// @return ColorTarget or nullopt on failure
             std::optional<Database::ColorTarget> parse_color_(const std::string& val);
 
             /// @brief Prints the command prompt
@@ -172,33 +155,27 @@ namespace Pgn {
             void init_cmd_map_();
 
             /// @brief Handles a parsed command
-            /// @param cmd Parsed command to execute
             void handle_command_(const ParsedCommand &cmd);
 
             /// @brief Handler for quit/exit command
             void cmd_quit_();
 
             /// @brief Handler for stats command
-            /// @param cmd Parsed command with options
             void cmd_stats_(const ParsedCommand& cmd);
 
             /// @brief Handler for clear command
             void cmd_clear_();
 
             /// @brief Handler for load command
-            /// @param cmd Parsed command with filename
             void cmd_load_(const ParsedCommand& cmd);
 
             /// @brief Handler for search command
-            /// @param cmd Parsed command with search parameters
             void cmd_search_(const ParsedCommand& cmd);
 
             /// @brief Handler for export command
-            /// @param cmd Parsed command with export options
             void cmd_export_(const ParsedCommand& cmd);
 
             /// @brief Handler for help command
-            /// @param cmd Parsed command (may specify which command to help with)
             void cmd_help_(const ParsedCommand& cmd);
 
             /// @brief Initializes help text map

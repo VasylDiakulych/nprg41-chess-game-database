@@ -6,47 +6,58 @@
 #include "../General/Exception.h"
 
 void Pgn::Writer::Writer::write_tag_help_(std::ostream& out, std::string_view key, std::string_view value, bool mandatory) const {
+    // Start tag: [Key "
     out << Tokens::TAG_OPEN << key << " " << Tokens::VALUE_DELIM;
     
     if (mandatory && value.empty()) {
+        // Mandatory tags with empty values use '?' as placeholder
         out << '?';
     } else {
+        // Escape special characters in value (quotes and backslashes)
         for (char c : value) {
             if (c == Tokens::VALUE_DELIM || c == '\\') out << '\\';
             out << c;
         }
     }
+    // End tag: "\n]
     out << Tokens::VALUE_DELIM << Tokens::TAG_CLOSE << "\n";
 }
 
 void Pgn::Writer::Writer::write_moves_(std::ostream& stream, std::string_view moves) const {
     size_t start = 0;
 
+    // Wrap move text at MAX_LEN (80) characters per line
     while (start < moves.length()) {
+        // If remaining text fits on one line, output it and done
         if (moves.length() - start <= MAX_LEN) {
             stream << moves.substr(start) << '\n';
             break;
         }
 
+        // Find last space before MAX_LEN to break at word boundary
         size_t break_pos = moves.find_last_of(' ', start + MAX_LEN);
 
+        // If no space found in range, break at MAX_LEN
         if (break_pos == std::string_view::npos || break_pos <= start) {
             break_pos = start + MAX_LEN;
         }
 
+        // Output line and advance past the break position
         stream << moves.substr(start, break_pos - start) << '\n';
         start = break_pos + 1;
     }
 }
 
+// Mandatory string tag, must be written even if empty
 void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key, const std::string& value) const{
     write_tag_help_(stream, key, value, true);
 }
 
 void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key, std::string_view value) const{
-   write_tag_help_(stream, key, value, true);
+    write_tag_help_(stream, key, value, true);
 }
 
+// Optional string tag - only written if value exists
 void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key, const std::optional<std::string>& value) const{
     if (value) {
         write_tag_help_(stream, key, *value, false);
@@ -61,6 +72,7 @@ void Pgn::Writer::Writer::write_tag_(std::ostream& stream, std::string_view key,
 void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
 
+    // Write the seven mandatory PGN tags first (in standard order)
     write_tag_(stream, Tokens::EVENT, data.event);
     write_tag_(stream, Tokens::SITE,  data.site);
     write_tag_(stream, Tokens::DATE,  data.date);
@@ -69,6 +81,7 @@ void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stre
     write_tag_(stream, Tokens::BLACK, data.black);
     write_tag_(stream, Tokens::RESULT, data.result);
 
+    // Write optional tags only if they have values
     write_tag_(stream, Tokens::WHITE_ELO, data.white_elo);
     write_tag_(stream, Tokens::BLACK_ELO, data.black_elo);
     write_tag_(stream, Tokens::ECO, data.eco);
@@ -76,8 +89,10 @@ void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stre
     write_tag_(stream, Tokens::OPENING, data.opening);
     write_tag_(stream, Tokens::TIME_CONTROL, data.time_control);
 
+    // Blank line between tags and moves, according to PGN standard
     stream << '\n';
 
+    // Write the moves section with line wrapping
     write_moves_(stream, game.moves());
 
     stream << std::endl;
@@ -86,6 +101,7 @@ void Pgn::Writer::Writer::write_game(const Model::Game& game, std::ostream& stre
 void Pgn::Writer::Writer::write_games(const std::vector<const Pgn::Model::Game*> games, std::ostream& stream) const {
     for (const auto& game : games) {
         write_game(*game, stream);
+        // Blank line between games, also PGN standard
         stream << std::endl;
     }
 }
@@ -123,6 +139,8 @@ void Pgn::Writer::Writer::write_games(const Database::Database& db, const std::s
 
 void Pgn::Writer::Writer::write_game_compact(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
+    
+    // Compact single-line format: "Player (ELO) vs Opponent (ELO) | Date | Event | Result"
     stream << data.white;
     if (data.white_elo.has_value()) stream << " (" << data.white_elo.value() << ")";
     stream << " vs " << data.black;
