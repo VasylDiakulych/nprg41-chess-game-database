@@ -140,7 +140,7 @@ void Pgn::Writer::Writer::write_games(const Database::Database& db, const std::s
 void Pgn::Writer::Writer::write_game_compact(const Model::Game& game, std::ostream& stream) const {
     const auto& data = game.data();
     
-    // Compact single-line format: "Player (ELO) vs Opponent (ELO) | Date | Event | Result"
+    // Compact single-line format: "Player (ELO) vs Opponent (ELO) | Date | Event | Result | ECO"
     stream << data.white;
     if (data.white_elo.has_value()) stream << " (" << data.white_elo.value() << ")";
     stream << " vs " << data.black;
