@@ -17,10 +17,16 @@ Interactive CLI tool for parsing, storing, and querying chess games in PGN forma
 ## Building
 
 ```bash
-mkdir build && cd build
-cmake ..
-make
+cmake -B build          
+cmake --build build    
 ```
+or
+
+```bash
+cmake -B build -DENABLE_DEBUG=ON     
+cmake --build build    
+```
+for debug mode
 
 ## Quick Start 
 

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <format>
 #include <iostream>
+#include <chrono>
 #include <optional>
 #include <string>
 #include "../General/Exception.h"
