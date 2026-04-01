@@ -128,12 +128,12 @@ bool Pgn::Database::Database::satisfies_predicates_(const Pgn::Model::Game& game
     }
 
     // Direct string comparisons 
-    if (query.event.has_value() && !matched_(data.event, query.event.value())) return false; 
+    if (query.event.has_value() && !matched_(data.event, normalize_key_(query.event.value()))) return false; 
     if (query.result.has_value() && data.result != query.result.value()) return false;
     
-    // Optional field matching (only check if both game and query have values)
-    if (query.opening.has_value() && data.opening.has_value() && !matched_(data.opening.value(), query.opening.value())) return false;
-    if (query.time_control.has_value() && data.time_control.has_value() && !matched_(data.time_control.value(), query.time_control.value())) return false;
+    // Optional field matching (game must have the field to match)
+    if (query.opening.has_value() && (!data.opening.has_value() || !matched_(data.opening.value(), normalize_key_(query.opening.value())))) return false;
+    if (query.time_control.has_value() && (!data.time_control.has_value() || !matched_(data.time_control.value(), normalize_key_(query.time_control.value())))) return false;
 
     // Date range comparison (string comparison works for YYYY.MM.DD format)
     if (query.date_min.has_value() && data.date < query.date_min.value()) return false;

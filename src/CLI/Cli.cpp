@@ -1,6 +1,5 @@
 #include "Cli.h"
 #include <cctype>
-#include <chrono>
 #include <cstddef>
 #include <format>
 #include <iostream>
@@ -13,13 +12,10 @@ std::string Pgn::Cli::Application::trim_(std::string_view s) const {
     auto start = s.begin();
     auto end = s.end();
     
-    // Skip leading whitespace by advancing start iterator
     while (start != end && std::isspace(static_cast<unsigned char>(*start))) {
         ++start;
     }
     
-    // Skip trailing whitespace by retreating end iterator
-    // Note: check (end - 1) to avoid accessing begin() - 1
     while (end != start && std::isspace(static_cast<unsigned char>(*(end - 1)))) {
         --end;
     }
@@ -44,7 +40,7 @@ std::vector<std::string> Pgn::Cli::Application::split_args_(std::string_view lin
             in_quotes = !in_quotes;
         } 
         else if (std::isspace(static_cast<unsigned char>(c)) && !in_quotes) {
-            // End of current argument (only if not inside quotes)
+            // End of current argument 
             if (!current.empty()) {
                 args.push_back(std::move(current));
                 current.clear();

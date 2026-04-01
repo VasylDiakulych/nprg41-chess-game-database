@@ -1,0 +1,263 @@
+[Event "Event A"]
+[Site "Site X"]
+[Date "2020.01.15"]
+[Round "1"]
+[White "Player A"]
+[Black "Player B"]
+[Result "1-0"]
+[WhiteElo "2800"]
+[BlackElo "2700"]
+[ECO "C42"]
+[Opening "Ruy Lopez"]
+[PlyCount "60"]
+[TimeControl "600+10"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O
+9.h3 Nb8 10.d4 Nbd7 1-0
+
+[Event "Event A"]
+[Site "Site X"]
+[Date "2020.01.16"]
+[Round "2"]
+[White "Player B"]
+[Black "Player A"]
+[Result "1/2-1/2"]
+[WhiteElo "2700"]
+[BlackElo "2800"]
+[ECO "C42"]
+[Opening "Ruy Lopez"]
+[PlyCount "80"]
+[TimeControl "600+10"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O
+9.h3 Nb8 10.d4 Nbd7 11.Nbd2 Bb7 12.Bc2 Re8 1/2-1/2
+
+[Event "Event B"]
+[Site "Site Y"]
+[Date "2021.03.20"]
+[Round "1"]
+[White "Player A"]
+[Black "Player C"]
+[Result "1-0"]
+[WhiteElo "2800"]
+[BlackElo "2600"]
+[ECO "B20"]
+[Opening "Sicilian Defense"]
+[PlyCount "45"]
+[TimeControl "180+2"]
+
+1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2 e5 7.Nb3 Be7 8.O-O O-O
+9.Be3 Nc6 1-0
+
+[Event "Event B"]
+[Site "Site Y"]
+[Date "2021.03.21"]
+[Round "2"]
+[White "Player C"]
+[Black "Player D"]
+[Result "0-1"]
+[WhiteElo "2600"]
+[BlackElo "2750"]
+[ECO "B20"]
+[Opening "Sicilian Defense"]
+[PlyCount "120"]
+[TimeControl "180+2"]
+
+1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2 e5 7.Nb3 Be7 8.O-O O-O
+9.Be3 Nc6 10.Nd5 Nxd5 11.exd5 Nb4 12.c4 Nxd5 0-1
+
+[Event "Event C"]
+[Site "Site Z"]
+[Date "2022.06.10"]
+[Round "1"]
+[White "Player E"]
+[Black "Player F"]
+[Result "1/2-1/2"]
+[WhiteElo "2650"]
+[BlackElo "2680"]
+[ECO "D30"]
+[Opening "Queens Gambit"]
+[PlyCount "90"]
+[TimeControl "300+5"]
+
+1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 Be7 5.Bf4 O-O 6.e3 c5 7.dxc5 Bxc5 8.Qc2 Nc6
+9.a3 Qa5 10.O-O-O 1/2-1/2
+
+[Event "Event C"]
+[Site "Site Z"]
+[Date "2022.06.11"]
+[Round "2"]
+[White "Player F"]
+[Black "Player E"]
+[Result "1-0"]
+[WhiteElo "2680"]
+[BlackElo "2650"]
+[ECO "D30"]
+[Opening "Queens Gambit"]
+[PlyCount "110"]
+[TimeControl "300+5"]
+
+1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 Be7 5.Bf4 O-O 6.e3 c5 7.dxc5 Bxc5 8.Qc2 Nc6
+9.a3 Qa5 10.O-O-O Bd7 11.b4 1-0
+
+[Event "Event D"]
+[Site "Site X"]
+[Date "2023.09.01"]
+[Round "1"]
+[White "Player A"]
+[Black "Player G"]
+[Result "1-0"]
+[WhiteElo "2800"]
+[BlackElo "2550"]
+[ECO "A00"]
+[Opening "King's Indian"]
+[PlyCount "40"]
+[TimeControl "60+0"]
+
+1.a4 e5 2.e4 Nf6 3.d3 Nc6 4.Nf3 d5 5.exd5 Nxd5 6.g3 Be7 7.Bg2 Be6 8.O-O O-O
+9.Re1 f6 1-0
+
+[Event "Event D"]
+[Site "Site Y"]
+[Date "2023.09.02"]
+[Round "2"]
+[White "Player H"]
+[Black "Player A"]
+[Result "1/2-1/2"]
+[WhiteElo "2900"]
+[BlackElo "2800"]
+[ECO "A00"]
+[Opening "King's Indian"]
+[PlyCount "150"]
+[TimeControl "60+0"]
+
+1.a4 e5 2.e4 Nf6 3.d3 Nc6 4.Nf3 d5 5.exd5 Nxd5 6.g3 Be7 7.Bg2 Be6 8.O-O O-O
+9.Re1 f6 10.c4 Nb6 1/2-1/2
+
+[Event "Event E"]
+[Site "Site Z"]
+[Date "2023.11.15"]
+[Round "1"]
+[White "Player B"]
+[Black "Player C"]
+[Result "0-1"]
+[WhiteElo "2700"]
+[BlackElo "2600"]
+[ECO "C50"]
+[Opening "Haloween Gambit"]
+[PlyCount "70"]
+[TimeControl "600+10"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O Nf6 5.d3 d6 6.c3 a6 7.a4 Ba7 8.Be3 Bxe3
+9.fxe3 O-O 10.Nbd2 Be6 0-1
+
+[Event "Event E"]
+[Site "Site X"]
+[Date "2023.11.16"]
+[Round "2"]
+[White "Player D"]
+[Black "Player F"]
+[Result "1-0"]
+[WhiteElo "2750"]
+[BlackElo "2680"]
+[ECO "C50"]
+[Opening "Haloween Gambit"]
+[PlyCount "55"]
+[TimeControl "600+10"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O Nf6 5.d3 d6 6.c3 a6 7.a4 Ba7 8.Be3 Bxe3
+9.fxe3 O-O 10.Nbd2 Be6 11.Bxe6 fxe6 1-0
+
+[Event "Event A"]
+[Site "Site Y"]
+[Date "2020.05.10"]
+[Round "5"]
+[White "Player G"]
+[Black "Player H"]
+[Result "1-0"]
+[WhiteElo "2550"]
+[BlackElo "2900"]
+[ECO "B33"]
+[Opening "Sicilian Defense"]
+[PlyCount "85"]
+[TimeControl "180+2"]
+
+1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 e5 6.Ndb5 d6 7.Bg5 a6 8.Na3 b5
+9.Nd5 Be7 10.Bxf6 Bxf6 1-0
+
+[Event "Event B"]
+[Site "Site Z"]
+[Date "2021.07.22"]
+[Round "3"]
+[White "Player A"]
+[Black "Player D"]
+[Result "1/2-1/2"]
+[WhiteElo "2800"]
+[BlackElo "2750"]
+[ECO "C42"]
+[PlyCount "30"]
+[TimeControl "600+10"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7.Bb3 d6 8.c3 O-O
+9.h3 Nb8 1/2-1/2
+
+[Event "Event C"]
+[Site "Site X"]
+[Date "2022.08.14"]
+[Round "3"]
+[White "Player C"]
+[Black "Player A"]
+[Result "0-1"]
+[WhiteElo "2600"]
+[BlackElo "2800"]
+[ECO "B20"]
+[PlyCount "95"]
+[TimeControl "300+5"]
+
+1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2 e5 7.Nb3 Be7 8.O-O O-O
+9.Be3 Be6 10.f4 exf4 0-1
+
+[Event "Event D"]
+[Site "Site Y"]
+[Date "2023.10.05"]
+[Round "3"]
+[White "Player E"]
+[Black "Player B"]
+[Result "1/2-1/2"]
+[WhiteElo "2650"]
+[BlackElo "2700"]
+[ECO "D30"]
+[PlyCount "130"]
+[TimeControl "5400+30"]
+
+1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Nf3 Be7 5.Bf4 O-O 6.e3 c5 7.dxc5 Bxc5 8.Qc2 Nc6
+9.a3 Qa5 10.O-O-O Bd7 11.b4 1/2-1/2
+
+[Event "Event E"]
+[Site "Site Z"]
+[Date "2023.12.20"]
+[Round "5"]
+[White "Player F"]
+[Black "Player G"]
+[Result "1-0"]
+[ECO "C50"]
+[PlyCount "20"]
+
+1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.O-O Nf6 5.d3 d6 6.c3 a6 1-0
+
+[Event "Event A"]
+[Site "Site X"]
+[Date "2020.02.01"]
+[Round "10"]
+[White "Player H"]
+[Black "Player C"]
+[Result "0-1"]
+[WhiteElo "2900"]
+[BlackElo "2600"]
+[ECO "A00"]
+[Opening "King's Indian"]
+[PlyCount "75"]
+[TimeControl "180+2"]
+
+1.a4 e5 2.e4 Nf6 3.d3 Nc6 4.Nf3 d5 5.exd5 Nxd5 6.g3 Be7 7.Bg2 Be6 8.O-O O-O
+9.Re1 f6 10.c4 Nb6 11.Nc3 0-1
