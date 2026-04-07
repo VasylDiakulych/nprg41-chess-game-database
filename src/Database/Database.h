@@ -1,7 +1,6 @@
 #ifndef DATABASE_
 #define DATABASE_
 
-#include <cstddef>
 #include <iostream>
 #include <map>
 #include <string>
@@ -79,12 +78,19 @@ namespace Pgn::Database {
             std::unordered_map<std::string, std::vector<size_t>> eco_index_;  ///< Maps ECO codes to game indices
 
             /// @brief Normalizes a key string for indexing
+            /// @param key The raw string to normalize (player name, event, site, etc.)
+            /// @return Lowercase string with all whitespace removed
             [[nodiscard]] static std::string normalize_key_(std::string_view key);
 
             /// @brief Compares two strings for matching
+            /// @param str1 Original string (may contain spaces, mixed case)
+            /// @param str2 Normalized search key (lowercase, no spaces)
+            /// @return True if str2 is a prefix of str1 
             static bool matched_(std::string_view str1, std::string_view str2);
 
             /// @brief Searches an ordered index by prefix
+            /// @param index The ordered index to search (player_index_, event_index_, site_index_)
+            /// @param query_val Optional search string
             /// @return Set of matching game indices, or nullopt if not found
             template<typename IndexType>
             std::optional<std::unordered_set<size_t>> search_prefix_(const IndexType& index, const std::optional<std::string>& query_val) const {
@@ -106,6 +112,8 @@ namespace Pgn::Database {
             }
 
             /// @brief Searches an index for exact match
+            /// @param index The index to search (eco_index_)
+            /// @param query_val Optional search string
             /// @return Set of matching game indices, or nullopt if not found
             template<typename IndexType>
             std::optional<std::unordered_set<size_t>> search_exact_(const IndexType& index, const std::optional<std::string>& query_val) const {
@@ -118,16 +126,25 @@ namespace Pgn::Database {
             }
 
             /// @brief Performs indexed search based on query parameters
+            /// @param query Search criteria containing filters for player, event, site, ECO
+            /// @return Vector of index sets (one per matched field), or nullopt if no indexed fields
             [[nodiscard]] std::optional<std::vector<std::unordered_set<size_t>>> indexed_search_(const Query& query) const;
 
             /// @brief Intersects multiple index sets
+            /// @param indices_val Vector of index sets from different search fields
+            /// @return Vector of game indices present in all input sets
             [[nodiscard]] std::vector<size_t> intersect_indices_(std::vector<std::unordered_set<size_t>>& indices_val) const;
 
             /// @brief Checks if a game satisfies all query predicates
+            /// @param game The game to evaluate
+            /// @param query Search criteria with filters
+            /// @param check_all If true, validates player match even with ColorTarget::Any
+            /// @param norm_player Normalized player name from query (empty if no player filter)
             /// @return True if game matches all criteria
             bool satisfies_predicates_(const Pgn::Model::Game& game, const Query& query, bool check_all, std::string_view norm_player) const;
 
             /// @brief Calculates database statistics
+            /// @return DBStats struct populated with aggregated data
             DBStats gather_statistics_() const;
 
             /// @brief Prints basic database statistics
@@ -159,9 +176,12 @@ namespace Pgn::Database {
             const std::vector<Pgn::Model::Game>& get_games() const { return games_;}
 
             /// @brief Adds a game to the database
+            /// @param game Rvalue reference to the game to add
             void add_game(Pgn::Model::Game&& game);
 
             /// @brief Searches for games matching query criteria
+            /// @param query Search parameters with optional filters
+            /// @return Vector of pointers to matching games (empty if none found)
             [[nodiscard]] std::vector<const Pgn::Model::Game*> search(const Query& query) const;
 
             /// @brief Prints database statistics

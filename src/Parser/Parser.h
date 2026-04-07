@@ -53,33 +53,45 @@ namespace Pgn {
             }
 
             /// @brief Parses an integer from a string view
+            /// @param line String containing the integer to parse
             /// @return Parsed integer value, or std::nullopt if parsing fails
             std::optional<int> parse_int_(std::string_view line);
             
             /// @brief Parses a PGN tag line
+            /// @param line Raw tag line in format [Key "Value"]
             /// @details Extracts tag name and value and stores in current_data_
             void parse_tag_(std::string_view line); 
 
             /// @brief Parses movetext section
+            /// @param line Raw movetext line from input
+            /// @param db Database to receive completed games
             /// @details Processes moves, comments, and variations
             void parse_movetext_(std::string_view line, Database::Database& db);
             
             /// @brief Evaluates a single token of movetext
+            /// @param token The token to process (move, number, result, etc.)
+            /// @param db Database to receive completed games
             /// @details Determines whether 
             void evaluate_token_(const std::string& token, Database::Database& db);
 
         public:
             
             /// @brief Parses a PGN stream
+            /// @param stream Input stream containing PGN data
+            /// @param db Database to populate with parsed games
             /// @details Static entry point for parsing from any input stream
             static void parse(std::istream& stream, Database::Database& db);
             
             /// @brief Parses a PGN file
+            /// @param filename Path to the PGN file to parse
+            /// @param db Database to populate with parsed games
             /// @details File wrapper for parse() 
             static void parse_file(const std::string& filename, Database::Database& db);
         };
         
         /// @brief Trims whitespace from both ends of a string
+        /// @param s String view to trim
+        /// @return Substring with leading/trailing whitespace removed
         /// @details Removes leading and trailing whitespace characters
         inline std::string_view trim(std::string_view s) {
             const char* whitespace = " \t\n\r\f\v";

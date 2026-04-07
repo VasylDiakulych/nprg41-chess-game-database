@@ -137,15 +137,21 @@ namespace Pgn {
             std::string trim_(std::string_view s) const;
 
             /// @brief Splits command line into arguments
+            /// @param line Raw command line input
+            /// @return Vector of parsed arguments (handles quoted strings)
             std::vector<std::string> split_args_(std::string_view line) const;
 
             /// @brief Parses command line into structured command
+            /// @param args Vector of string arguments from split_args_
+            /// @return ParsedCommand structure with name, flags, args, and optional error
             ParsedCommand parse_command_line_(const std::vector<std::string>& args) const;
 
             /// @brief Parses an integer from string
             std::optional<int> parse_int_(const std::string& val);
 
             /// @brief Parses color target from string
+            /// @param val String color indicator ("w", "b", "white", "black", "any")
+            /// @return ColorTarget enum value or std::nullopt on invalid input
             std::optional<Database::ColorTarget> parse_color_(const std::string& val);
 
             /// @brief Prints the command prompt
@@ -155,6 +161,7 @@ namespace Pgn {
             void init_cmd_map_();
 
             /// @brief Handles a parsed command
+            /// @param cmd The parsed command to execute
             void handle_command_(const ParsedCommand &cmd);
 
             /// @brief Handler for quit/exit command
